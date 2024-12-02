@@ -1,0 +1,12 @@
+services:
+  db:
+    build: .
+    container_name: compasscar-db
+    restart: always
+    ports:
+      - "5434:5432"
+    volumes:
+      - .docker/dbdata:/var/lib/postgresql/dbdata
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=compasscar
