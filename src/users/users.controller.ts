@@ -6,12 +6,13 @@ import {
   Patch,
   Param,
   NotFoundException,
-  Delete, UseGuards,
+  Delete, UseGuards, ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
+import { UserNotFoundGuard } from '../guards/user/user-not-found.guard';
 
 @Controller('users')
 export class UsersController {
@@ -29,11 +30,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const user = await this.usersService.findOne(+id);
-    if (!user) {
-      throw new NotFoundException(`Usuário com id ${id} não encontrado`);
-    }
+  @UseGuards(UserNotFoundGuard)
+  async findOne(@Param('id' ,ParseIntPipe) id: number) {
+    const user = await this.usersService.findOne(id);
     return user;
   }
 
