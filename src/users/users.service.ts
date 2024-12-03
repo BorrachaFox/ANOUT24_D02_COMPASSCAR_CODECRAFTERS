@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import {
   BadRequestException,
   ConflictException,
@@ -27,7 +28,7 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDTO) {
     const validateUser = await this.dbPrisma.user.findFirst({ where: { id } });
     if (!validateUser) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found.');
     }
 
     const { email } = updateUserDto;
@@ -39,6 +40,12 @@ export class UsersService {
     });
     if (validateEmail) {
       throw new ConflictException('Email already in use by an active user.');
+    }
+
+    let { password } = updateUserDto;
+    if (password) {
+      const saltRounds = 10;
+      password = await bcrypt.hash(password, saltRounds);
     }
 
     try {
