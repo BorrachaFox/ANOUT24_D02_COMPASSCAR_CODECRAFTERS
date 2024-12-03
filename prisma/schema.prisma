@@ -24,7 +24,7 @@ model Client {
   birthday            DateTime
   email               String
   phone               String
-  status              String
+  status              String          @default("active")
   created_at          DateTime        @default(now())
   update_at           DateTime        @updatedAt
 
@@ -38,6 +38,7 @@ model Car {
   plate               String
   year                Int
   km                  Float
+  status              String          @default("active")
   created_at          DateTime        @default(now())
   update_at           DateTime        @updatedAt
 
@@ -58,7 +59,7 @@ model Order {
   total_rental_price  Float
   order_closing_time  DateTime
   late_fee            Float
-  status              String
+  status              String          @default("open")
   created_at          DateTime        @default(now())
   update_at           DateTime        @updatedAt
 
