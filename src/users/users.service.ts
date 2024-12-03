@@ -14,7 +14,7 @@ export class UsersService {
   constructor(private readonly dbPrisma: PrismaService) {}
 
   create(createUserDto: CreateUserDTO) {
-    return 'This action adds a new user';
+    return createUserDto;
   }
 
   findAll() {
