@@ -6,17 +6,19 @@ import {
   Patch,
   Param,
   NotFoundException,
-  Delete,
+  Delete, UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
+import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @UseGuards(UserEmailActiveGuard)
   create(@Body() createUserDto: CreateUserDTO) {
     return this.usersService.create(createUserDto);
   }
@@ -36,6 +38,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(UserEmailActiveGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDTO) {
     return this.usersService.update(+id, updateUserDto);
   }
