@@ -47,19 +47,7 @@ export class UsersService {
     }
   }
 
-  async findOne(id: number) {
-    const user = await this.dbPrisma.user.findUnique({
-      where: { id },
-    });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user;
-
-    return userWithoutPassword;
-  }
 
   update(id: number, updateUserDto: UpdateUserDTO) {
     return `This action updates a #${id} user`;
