@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,63 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int       @id   @default(autoincrement())
+  name                String
+  email               String
+  password            String
+  status              String
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
+}
+
+model Client {
+  id                  Int       @id   @default(autoincrement())
+  name                String
+  cpf                 String
+  birthday            DateTime
+  email               String
+  phone               String
+  status              String
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
+
+  order               Order[]
+}
+
+model Car {
+  id                  Int       @id   @default(autoincrement())
+  brand               String
+  model               String
+  plate               String
+  year                Int
+  km                  Float
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
+
+  order               Order[]
+  items               String[]
+}
+
+model Order {
+  id                  Int       @id   @default(autoincrement())
+  client_id           Int
+  car_id              Int
+  start_date          DateTime
+  final_date          DateTime
+  cep                 String
+  uf                  String
+  city                String
+  rental_fee          Float
+  total_rental_price  Float
+  order_closing_time  DateTime
+  late_fee            Float
+  status              String
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
+
+  client              Client          @relation(fields: [client_id], references: [id])
+  car                 Car             @relation(fields: [car_id], references: [id])
 }
