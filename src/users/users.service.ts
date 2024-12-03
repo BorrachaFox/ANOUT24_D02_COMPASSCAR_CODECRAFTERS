@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,10 +10,8 @@ export class UsersService {
     return 'This action adds a new user';
   }
 
-  async findAll(email?: string, name?: string, status?: string) {
-    // Construindo o filtro de forma correta
+  async findAll(email: string, name: string, status: string) {
     const where: any = {};
-
     if (email) {
       where.email = {
         contains: email,
@@ -31,20 +29,36 @@ export class UsersService {
     if (status) {
       where.status = status;
     }
-    const users = await this.dbPrisma.user.findMany({
-      where,
-    });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const usersWithoutPassword = users.map(({ password, ...user }) => user);
+    try {
+      const users = await this.dbPrisma.user.findMany({
+        where,
+      });
 
-    return usersWithoutPassword;
+      if (users.length === 0) {
+        throw new NotFoundException('No users found  ');
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const usersWithoutPassword = users.map(({ password, ...user }) => user);
+
+      return usersWithoutPassword;
+    } catch {
+      throw new NotFoundException('user not found with this filter');
+    }
   }
 
-  findOne(id: number) {
-    return this.dbPrisma.user.findUnique({
+  async findOne(id: number) {
+    const user = await this.dbPrisma.user.findUnique({
       where: { id },
     });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
   }
 
   update(id: number, updateUserDto: UpdateUserDTO) {
