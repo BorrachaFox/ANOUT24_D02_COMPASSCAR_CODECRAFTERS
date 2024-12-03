@@ -5,8 +5,8 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   NotFoundException,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
