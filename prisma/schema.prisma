@@ -7,66 +7,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Status {
-  ACTIVE
-  INACTIVE
-  PENDING
-}
-
 model User {
-  id         Int      @id @default(autoincrement())
-  name       String
-  email      String
-  password   String
-  status     Status   @default(ACTIVE)
-  created_at DateTime @default(now())
-  update_at  DateTime @default(now()) @updatedAt
+  id                  Int       @id   @default(autoincrement())
+  name                String
+  email               String
+  password            String
+  status              String          @default("active")
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
 }
 
 model Client {
-  id         Int      @id @default(autoincrement())
-  name       String
-  cpf        String
-  birthday   DateTime
-  email      String
-  phone      String
-  status     Status   @default(ACTIVE)
-  created_at DateTime @default(now())
-  update_at  DateTime @default(now()) @updatedAt
+  id                  Int       @id   @default(autoincrement())
+  name                String
+  cpf                 String
+  birthday            DateTime
+  email               String
+  phone               String
+  status              String          @default("active")
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
 
   order Order[]
 }
 
 model Car {
-  id         Int      @id @default(autoincrement())
-  brand      String
-  model      String
-  plate      String
-  year       Int
-  km         Float
-  created_at DateTime @default(now())
-  update_at  DateTime @default(now()) @updatedAt
+  id                  Int       @id   @default(autoincrement())
+  brand               String
+  model               String
+  plate               String
+  year                Int
+  km                  Float
+  status              String          @default("active")
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
 
   order Order[]
   items String[]
 }
 
 model Order {
-  id                 Int      @id @default(autoincrement())
-  client_id          Int
-  car_id             Int
-  start_date         DateTime
-  final_date         DateTime
-  cep                String
-  uf                 String
-  city               String
-  rental_fee         Float
-  total_rental_price Float
-  order_closing_time DateTime
-  late_fee           Float
-  status             Status   @default(ACTIVE)
-  created_at         DateTime @default(now())
-  update_at          DateTime @default(now()) @updatedAt
+  id                  Int       @id   @default(autoincrement())
+  client_id           Int
+  car_id              Int
+  start_date          DateTime
+  final_date          DateTime
+  cep                 String
+  uf                  String
+  city                String
+  rental_fee          Float
+  total_rental_price  Float
+  order_closing_time  DateTime
+  late_fee            Float
+  status              String          @default("open")
+  created_at          DateTime        @default(now())
+  update_at           DateTime        @updatedAt
 
   client Client @relation(fields: [client_id], references: [id])
   car    Car    @relation(fields: [car_id], references: [id])
