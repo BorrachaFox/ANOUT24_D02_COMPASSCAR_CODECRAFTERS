@@ -13,8 +13,11 @@ export class UsersService {
       createUserDto.password,
       await bcrypt.genSalt(),
     );
-    return createUserDto;
+    return this.prisma.user.create({ data: createUserDto });
   }
+
+
+
 
   findAll() {
     return `This action returns all users`;
