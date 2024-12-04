@@ -47,6 +47,7 @@ export class UsersService {
       const users = await this.prisma.user.findMany({
         where,
       });
+      console.log(users)
 
       if (users.length === 0) {
         throw new NotFoundException('No users found');
