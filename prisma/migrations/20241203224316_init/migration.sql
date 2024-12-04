@@ -22,7 +22,7 @@ CREATE TABLE "Client" (
     "birthday" TIMESTAMP(3) NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
-    "status" "Status" NOT NULL DEFAULT 'ACTIVE',,
+    "status" "Status" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMP(3) NOT NULL,
 
@@ -59,7 +59,7 @@ CREATE TABLE "Order" (
     "total_rental_price" DOUBLE PRECISION NOT NULL,
     "order_closing_time" TIMESTAMP(3) NOT NULL,
     "late_fee" DOUBLE PRECISION NOT NULL,
-    "status" "Status" NOT NULL DEFAULT 'OPEN',
+    "status" "Status" NOT NULL DEFAULT 'PENDING',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMP(3) NOT NULL,
 
