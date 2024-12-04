@@ -37,4 +37,6 @@ export class CreateCarDTO {
   @ArrayMaxSize(5)
   @IsNotEmpty()
   items: string[];
+
+  update_at? : Date;
 }
