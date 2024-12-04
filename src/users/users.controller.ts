@@ -40,7 +40,6 @@ export class UsersController {
     return user;
   }
 
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDTO) {
     return this.usersService.update(+id, updateUserDto);

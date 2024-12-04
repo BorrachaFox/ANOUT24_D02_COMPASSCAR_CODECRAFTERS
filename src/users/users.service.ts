@@ -112,22 +112,20 @@ export class UsersService {
     }
   }
 
-
   async remove(id: number) {
     let user = await this.prisma.user.findUnique({
       where: { id },
     });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
-  }
-   user = await this.prisma.user.update({
-    where: { id },
+    }
+    user = await this.prisma.user.update({
+      where: { id },
       data: {
         status: 'inactive',
         update_at: new Date(),
-      },   
-  });
-  return `User ${id} deactivated successfully.`;
-}
-
+      },
+    });
+    return `User ${id} deactivated successfully.`;
+  }
 }
