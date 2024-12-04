@@ -4,7 +4,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'active',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMP(3) NOT NULL,
 
@@ -19,7 +19,7 @@ CREATE TABLE "Client" (
     "birthday" TIMESTAMP(3) NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'active',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMP(3) NOT NULL,
 
@@ -34,6 +34,7 @@ CREATE TABLE "Car" (
     "plate" TEXT NOT NULL,
     "year" INTEGER NOT NULL,
     "km" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'active',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMP(3) NOT NULL,
     "items" TEXT[],
@@ -55,7 +56,7 @@ CREATE TABLE "Order" (
     "total_rental_price" DOUBLE PRECISION NOT NULL,
     "order_closing_time" TIMESTAMP(3) NOT NULL,
     "late_fee" DOUBLE PRECISION NOT NULL,
-    "status" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'open',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMP(3) NOT NULL,
 

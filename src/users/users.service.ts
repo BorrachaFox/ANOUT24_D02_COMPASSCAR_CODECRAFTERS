@@ -1,19 +1,63 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from './entities/user.entity';
+import { PrismaService } from '../prisma/prisma.service';
+
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
-  create(createUserDto: CreateUserDTO) {
-    
-    return 'This action adds a new user';
+
+  async create(createUserDto: CreateUserDTO) {
+    createUserDto.password = await bcrypt.hash(
+      createUserDto.password,
+      await bcrypt.genSalt(),
+    );
+    return this.prisma.user.create({ data: createUserDto });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(email: string, name: string, status: string) {
+    const where: any = {};
+    if (email) {
+      where.email = {
+        contains: email,
+        mode: 'insensitive',
+      };
+    }
+
+    if (name) {
+      where.name = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    try {
+      const users = await this.prisma.user.findMany({
+        where,
+      });
+
+      if (users.length === 0) {
+        throw new NotFoundException('No users found  ');
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const usersWithoutPassword = users.map(({ password, ...user }) => user);
+
+      return usersWithoutPassword;
+    } catch {
+      throw new NotFoundException('user not found with this filter');
+    }
   }
 
   async findOne(id: number) {
@@ -24,22 +68,48 @@ export class UsersService {
         name: true,
         email: true,
         status: true,
-        created_at : true,
-        update_at : true
+        created_at: true,
+        update_at: true,
       },
     });
 
     if (!user) {
-      return null; 
+      return null;
     }
     return user;
-
-   
   }
 
+  async update(id: number, updateUserDto: UpdateUserDTO) {
+    const validateUser = await this.prisma.user.findFirst({ where: { id } });
+    if (!validateUser) {
+      throw new NotFoundException('User not found.');
+    }
 
-  update(id: number, updateUserDto: UpdateUserDTO) {
-    return `This action updates a #${id} user`;
+    const { email } = updateUserDto;
+    const validateEmail = await this.prisma.user.findFirst({
+      where: {
+        email,
+        status: 'active',
+      },
+    });
+    if (validateEmail) {
+      throw new ConflictException('Email already in use by an active user.');
+    }
+
+    let { password } = updateUserDto;
+    if (password) {
+      const saltRounds = 10;
+      password = await bcrypt.hash(password, saltRounds);
+    }
+
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: { ...updateUserDto },
+      });
+    } catch (_err) {
+      throw new BadRequestException();
+    }
   }
 
 
