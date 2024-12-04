@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  NotFoundException,
   Delete,
   Query,
 } from '@nestjs/common';
@@ -31,8 +32,12 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const user = await this.usersService.findOne(+id);
+    if (!user) {
+      throw new NotFoundException(`Usuário com id ${id} não encontrado`);
+    }
+    return user;
   }
 
   @Patch(':id')

@@ -3,11 +3,18 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
+import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class UsersService {
-  constructor(private readonly dbPrisma: PrismaService) {}
-  create(CreateUserDTO: CreateUserDTO) {
-    return 'This action adds a new user';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createUserDto: CreateUserDTO) {
+    createUserDto.password = await bcrypt.hash(
+      createUserDto.password,
+      await bcrypt.genSalt(),
+    );
+    return this.prisma.user.create({ data: createUserDto });
   }
 
   async findAll(email: string, name: string, status: string) {
@@ -31,7 +38,7 @@ export class UsersService {
     }
 
     try {
-      const users = await this.dbPrisma.user.findMany({
+      const users = await this.prisma.user.findMany({
         where,
       });
 
@@ -46,8 +53,25 @@ export class UsersService {
       throw new NotFoundException('user not found with this filter');
     }
   }
+  
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        created_at: true,
+        update_at: true,
+      },
+    });
 
-
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
 
   update(id: number, updateUserDto: UpdateUserDTO) {
     return `This action updates a #${id} user`;
