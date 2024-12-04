@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -16,10 +17,43 @@ export class UsersService {
     return this.prisma.user.create({ data: createUserDto });
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
+  async findAll(email: string, name: string, status: string) {
+    const where: any = {};
+    if (email) {
+      where.email = {
+        contains: email,
+        mode: 'insensitive',
+      };
+    }
 
+    if (name) {
+      where.name = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    try {
+      const users = await this.prisma.user.findMany({
+        where,
+      });
+
+      if (users.length === 0) {
+        throw new NotFoundException('No users found  ');
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const usersWithoutPassword = users.map(({ password, ...user }) => user);
+
+      return usersWithoutPassword;
+    } catch {
+      throw new NotFoundException('user not found with this filter');
+    }
+  }
+  
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id },
