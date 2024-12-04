@@ -11,8 +11,28 @@ export class CarsService {
     return 'This action adds a new car';
   }
 
-  findAll() {
-    return `This action returns all cars`;
+  findAll(query) {
+    let { brand, km, year, status, daily_price, page, limit } = query;
+    const where: Record<string, any> = {};
+
+    if(((page) && (page > 10)) || (!page)) page = 10;
+    if(((limit) && (limit > 5)) || (!limit)) page = 5;
+
+    const take:number = Number(limit)
+    let skip: number = Number((page - 1) * limit);
+
+    if(brand) where.brand = { contains: brand};
+    if(km) where.km = { contains: km};
+    if(year) where.year = { contains: year};
+    if(status) where.status = { contains: status};
+    if(daily_price) where.daily_price = { contains: daily_price};
+    const carFiltred = this.prisma.car.findMany({
+      where,
+      skip,
+      take,
+      },
+    );
+    return carFiltred;
   }
 
   findOne(id: number) {
