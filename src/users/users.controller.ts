@@ -6,8 +6,8 @@ import {
   Patch,
   Param,
   Query,
-  Delete, 
-  UseGuards, 
+  Delete,
+  UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -15,7 +15,9 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
 import { UserNotFoundGuard } from '../guards/user/user-not-found.guard';
+import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 
+@UseGuards(IsAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

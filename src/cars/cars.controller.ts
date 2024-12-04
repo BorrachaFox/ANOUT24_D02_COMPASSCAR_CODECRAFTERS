@@ -3,7 +3,9 @@ import { CarsService } from './cars.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
 import { CarNotFoundGuard } from '../guards/cars/car-not-found.guard';
+import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 
+@UseGuards(IsAuthGuard)
 @Controller('cars')
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}

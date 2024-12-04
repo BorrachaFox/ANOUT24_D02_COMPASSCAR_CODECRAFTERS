@@ -20,6 +20,7 @@ export class UsersService {
       createUserDto.password,
       await bcrypt.genSalt(),
     );
+
     return this.prisma.user.create({ data: createUserDto });
   }
 
