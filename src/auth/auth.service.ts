@@ -23,6 +23,14 @@ export class AuthService {
     };
   }
 
+  checkToken(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (e) {
+      throw new UnauthorizedException(e);
+    }
+  }
+
   async login({ email, password }: AuthLoginDTO) {
     const user = await this.prisma.user.findFirst({
       where: {
