@@ -28,7 +28,7 @@ model Client {
   created_at          DateTime        @default(now())
   update_at           DateTime        @updatedAt
 
-  order               Order[]
+  order Order[]
 }
 
 model Car {
@@ -42,8 +42,8 @@ model Car {
   created_at          DateTime        @default(now())
   update_at           DateTime        @updatedAt
 
-  order               Order[]
-  items               String[]
+  order Order[]
+  items String[]
 }
 
 model Order {
@@ -63,6 +63,6 @@ model Order {
   created_at          DateTime        @default(now())
   update_at           DateTime        @updatedAt
 
-  client              Client          @relation(fields: [client_id], references: [id])
-  car                 Car             @relation(fields: [car_id], references: [id])
+  client Client @relation(fields: [client_id], references: [id])
+  car    Car    @relation(fields: [car_id], references: [id])
 }
