@@ -5,40 +5,52 @@ import {
   Body,
   Patch,
   Param,
-  Delete, UseGuards,
+  Query,
+  Delete, 
+  UseGuards, 
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { EmailAvailableGuard } from '../guards/user/user-create.guard';
+import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
+import { UserNotFoundGuard } from '../guards/user/user-not-found.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @UseGuards(EmailAvailableGuard)
+  @UseGuards(UserEmailActiveGuard)
   create(@Body() createUserDto: CreateUserDTO) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll(
+    @Query('email') email?: string,
+    @Query('name') name?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.usersService.findAll(email, name, status);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @UseGuards(UserNotFoundGuard)
+  async findOne(@Param('id' ,ParseIntPipe) id: number) {
+    const user = await this.usersService.findOne(id);
+    return user;
   }
 
   @Patch(':id')
+  @UseGuards(UserEmailActiveGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDTO) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const userId = +id;
+    return await this.usersService.remove(userId);
   }
 }
