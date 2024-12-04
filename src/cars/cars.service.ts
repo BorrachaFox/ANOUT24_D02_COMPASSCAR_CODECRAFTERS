@@ -1,15 +1,25 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { Status } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateCarDTO } from './dto/create-car.dto';
+import { UpdateCarDTO } from './dto/update-car.dto';
 
 @Injectable()
 export class CarsService {
   constructor(private readonly prisma: PrismaService) {}
-  create(createCarDto: CreateCarDto) {
-    
-    return 'This action adds a new car';
+
+  async create(createCarDto: CreateCarDTO) {
+    const existingCar = await this.prisma.car.findFirst({
+        where: {
+          plate: createCarDto.plate,
+          status: 'ACTIVE',
+        },
+      });
+
+    if (existingCar) {
+      throw new ConflictException('There is already a car with that same license plate.');
+    }
+    return await this.prisma.car.create({ data: createCarDto });
   }
 
   findAll(query) {
@@ -41,10 +51,10 @@ export class CarsService {
     });
   }
 
-  update(id: number, updateCarDto: UpdateCarDto) {
+  update(id: number, updateCarDto: UpdateCarDTO) {
     const { brand, model, plate, items, km, year, daily_price } = updateCarDto;
     //const data: Record<string, any> = {};
-    const data: UpdateCarDto = {}
+    const data: UpdateCarDTO = {}
 
     if((!brand) && (model)) throw new BadRequestException('brand is required');
     if((brand) && (!model)) throw new BadRequestException('model is required');
