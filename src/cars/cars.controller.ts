@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
 import { CarsService } from './cars.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
@@ -14,8 +14,8 @@ export class CarsController {
   }
 
   @Get()
-  findAll() {
-    return this.carsService.findAll();
+  async findAll(@Query() query: any) {
+    return this.carsService.findAll(query);
   }
 
   @Get(':id')
