@@ -1,9 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ClientsService {
+  constructor(private readonly prisma: PrismaService) {}
   create(createClientDto: CreateClientDto) {
     return 'This action adds a new client';
   }
@@ -13,14 +21,47 @@ export class ClientsService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} client`;
+    try {
+      this.prisma.client.findFirst({
+        where: { id },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();()
+    }
   }
 
-  update(id: number, updateClientDto: UpdateClientDto) {
-    return `This action updates a #${id} client`;
+  async update(id: number, updateClientDto: UpdateClientDto) {
+    try {
+      await this.prisma.client.update({
+        where: { id },
+        data: { ...updateClientDto },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} client`;
+  async remove(id: number) {
+    const orderVerification = await this.prisma.order.findFirst({
+      where: {
+        client_id: id,
+        status: {
+          in: ['ACTIVE', 'PENDING']
+        },
+      }
+    })
+    if (orderVerification) {
+      throw new BadRequestException('Client contains pending or active order.')
+    }
+
+    try {
+      await this.prisma.client.update({
+        where: { id },
+        data: { status: 'INACTIVE' },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 }
+
