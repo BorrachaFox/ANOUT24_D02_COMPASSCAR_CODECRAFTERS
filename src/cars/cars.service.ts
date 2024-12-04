@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Status } from '@prisma/client';
 
 @Injectable()
 export class CarsService {
@@ -46,6 +47,12 @@ export class CarsService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} car`;
+    return this.prisma.car.update({
+      where: { id },
+      data: {
+        status: Status.INACTIVE,
+        update_at: new Date(),
+      }
+    })
   }
 }
