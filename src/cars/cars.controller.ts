@@ -30,7 +30,8 @@ export class CarsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.carsService.remove(+id);
+  @UseGuards(CarNotFoundGuard)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.carsService.remove(id);
   }
 }
