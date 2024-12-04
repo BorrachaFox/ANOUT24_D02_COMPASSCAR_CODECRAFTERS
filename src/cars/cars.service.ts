@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCarDTO } from './dto/create-car.dto';

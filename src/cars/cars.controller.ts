@@ -3,6 +3,8 @@ import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 import { UserEmailActiveGuard } from "src/guards/user/user-email-active.guard";
 import { CarNotFoundGuard } from '../guards/cars/car-not-found.guard';
 import { CarsService } from './cars.service';
+import { CreateCarDTO } from './dto/create-car.dto';
+import { UpdateCarDTO } from './dto/update-car.dto';
 
 @UseGuards(IsAuthGuard)
 @Controller('cars')
@@ -11,7 +13,7 @@ export class CarsController {
 
   @Post()
   @UseGuards(UserEmailActiveGuard)
-  create(@Body() createCarDto: CreateCarDto) {
+  create(@Body() createCarDto: CreateCarDTO) {
     return this.carsService.create(createCarDto);
   }
 
@@ -28,7 +30,7 @@ export class CarsController {
 
   @Patch(':id')
   @UseGuards(CarNotFoundGuard)
-  update(@Param('id',ParseIntPipe) id: number, @Body() updateCarDto: UpdateCarDto) {
+  update(@Param('id',ParseIntPipe) id: number, @Body() updateCarDto: UpdateCarDTO) {
     return this.carsService.update(id, updateCarDto);
   }
 
