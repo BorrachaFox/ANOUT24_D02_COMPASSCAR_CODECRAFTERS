@@ -27,8 +27,9 @@ export class CarsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCarDto: UpdateCarDto) {
-    return this.carsService.update(+id, updateCarDto);
+  @UseGuards(CarNotFoundGuard)
+  update(@Param('id',ParseIntPipe) id: number, @Body() updateCarDto: UpdateCarDto) {
+    return this.carsService.update(id, updateCarDto);
   }
 
   @Delete(':id')
