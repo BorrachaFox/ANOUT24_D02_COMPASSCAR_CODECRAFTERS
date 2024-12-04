@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -13,10 +13,11 @@ import { AuthController } from './auth.controller';
         expiresIn: process.env.JWT_EXPIRATION,
       },
     }),
-    UsersModule,
+    forwardRef(() => UsersModule),
     PrismaModule,
   ],
   providers: [AuthService],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}
