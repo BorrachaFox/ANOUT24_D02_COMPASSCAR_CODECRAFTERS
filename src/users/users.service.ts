@@ -20,8 +20,7 @@ export class UsersService {
       createUserDto.password,
       await bcrypt.genSalt(),
     );
-
-    return this.prisma.user.create({ data: createUserDto });
+    return this.prisma.user.create({ data: { ...createUserDto } });
   }
 
   async findAll(email: string, name: string, status: string) {
@@ -50,7 +49,7 @@ export class UsersService {
       });
 
       if (users.length === 0) {
-        throw new NotFoundException('No users found');
+        throw new NotFoundException('No users found  ');
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const usersWithoutPassword = users.map(({ password, ...user }) => user);
@@ -64,20 +63,15 @@ export class UsersService {
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        status: true,
-        created_at: true,
-        update_at: true,
-      },
     });
 
     if (!user) {
-      return null;
+      throw new NotFoundException('User not found.');
     }
-    return user;
+    const { password, ...usersWithoutPassword } = user;
+
+    return usersWithoutPassword;
+    // return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDTO) {
@@ -123,8 +117,7 @@ export class UsersService {
     user = await this.prisma.user.update({
       where: { id },
       data: {
-        status: 'INACTIVE',
-        update_at: new Date(),
+        status: 'inactive',
       },
     });
     return `User ${id} deactivated successfully.`;
