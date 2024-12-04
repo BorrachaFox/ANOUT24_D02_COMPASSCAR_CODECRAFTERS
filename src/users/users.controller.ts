@@ -40,13 +40,15 @@ export class UsersController {
     return user;
   }
 
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDTO) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const userId = +id;
+    return await this.usersService.remove(userId);
   }
 }

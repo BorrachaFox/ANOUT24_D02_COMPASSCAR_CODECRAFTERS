@@ -59,7 +59,7 @@ export class UsersService {
       throw new NotFoundException('user not found with this filter');
     }
   }
-  
+
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -112,7 +112,22 @@ export class UsersService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+
+  async remove(id: number) {
+    let user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
   }
+   user = await this.prisma.user.update({
+    where: { id },
+      data: {
+        status: 'inactive',
+        update_at: new Date(),
+      },   
+  });
+  return `User ${id} deactivated successfully.`;
+}
+
 }
