@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -73,8 +79,37 @@ export class UsersService {
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDTO) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDTO) {
+    const validateUser = await this.prisma.user.findFirst({ where: { id } });
+    if (!validateUser) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const { email } = updateUserDto;
+    const validateEmail = await this.prisma.user.findFirst({
+      where: {
+        email,
+        status: 'active',
+      },
+    });
+    if (validateEmail) {
+      throw new ConflictException('Email already in use by an active user.');
+    }
+
+    let { password } = updateUserDto;
+    if (password) {
+      const saltRounds = 10;
+      password = await bcrypt.hash(password, saltRounds);
+    }
+
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: { ...updateUserDto },
+      });
+    } catch (_err) {
+      throw new BadRequestException();
+    }
   }
 
   remove(id: number) {
