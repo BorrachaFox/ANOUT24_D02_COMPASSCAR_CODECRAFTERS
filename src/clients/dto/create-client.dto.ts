@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsEmail, IsPhoneNumber, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsEmail,
+  IsEmpty,
+  IsPhoneNumber,
+  IsString,
+} from 'class-validator';
 
 export class CreateClientDto {
   @IsString()
@@ -16,6 +22,9 @@ export class CreateClientDto {
   email: string;
 
   @IsString()
-  @IsPhoneNumber()
+  @IsPhoneNumber('BR')
   phone: string;
+
+  @IsEmpty()
+  status: string;
 }
