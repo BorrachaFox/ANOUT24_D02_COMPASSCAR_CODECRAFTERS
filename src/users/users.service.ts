@@ -49,7 +49,7 @@ export class UsersService {
       });
 
       if (users.length === 0) {
-        throw new NotFoundException('No users found  ');
+        throw new NotFoundException('No users found');
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const usersWithoutPassword = users.map(({ password, ...user }) => user);
@@ -89,7 +89,7 @@ export class UsersService {
     const validateEmail = await this.prisma.user.findFirst({
       where: {
         email,
-        status: 'active',
+        status: 'ACTIVE',
       },
     });
     if (validateEmail) {
@@ -122,7 +122,7 @@ export class UsersService {
     user = await this.prisma.user.update({
       where: { id },
       data: {
-        status: 'inactive',
+        status: 'INACTIVE',
         update_at: new Date(),
       },
     });
