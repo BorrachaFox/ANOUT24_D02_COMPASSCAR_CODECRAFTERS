@@ -47,6 +47,7 @@ model Car {
   status     Status   @default(ACTIVE)
   created_at DateTime @default(now())
   update_at  DateTime @default(now()) @updatedAt
+  daily_price Float
 
   order Order[]
   items String[]
