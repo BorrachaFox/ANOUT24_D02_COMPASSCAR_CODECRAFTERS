@@ -10,7 +10,13 @@ datasource db {
 enum Status {
   ACTIVE
   INACTIVE
-  PENDING
+}
+
+enum OrderStatus {
+  OPEN
+  CANCELED
+  APPROVED
+  CLOSED
 }
 
 model User {
@@ -34,7 +40,7 @@ model Client {
   created_at DateTime @default(now())
   update_at  DateTime @default(now()) @updatedAt
 
-  order Order[]
+  orders Order[]
 }
 
 model Car {
@@ -44,10 +50,10 @@ model Car {
   plate      String
   year       Int
   km         Float
+  daily_rate Float
   status     Status   @default(ACTIVE)
   created_at DateTime @default(now())
   update_at  DateTime @default(now()) @updatedAt
-  daily_price Float
 
   order Order[]
   items String[]
@@ -66,7 +72,7 @@ model Order {
   total_rental_price Float
   order_closing_time DateTime
   late_fee           Float
-  status             Status   @default(PENDING)
+  status             OrderStatus   @default(OPEN)
   created_at         DateTime @default(now())
   update_at          DateTime @default(now()) @updatedAt
 
