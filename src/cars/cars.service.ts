@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -27,13 +27,12 @@ export class CarsService {
     if(year) where.year = { contains: year};
     if(status) where.status = { contains: status};
     if(daily_price) where.daily_price = { contains: daily_price};
-    const carFiltred = this.prisma.car.findMany({
-      where,
-      skip,
-      take,
+    return this.prisma.car.findMany({
+        where,
+        skip,
+        take,
       },
     );
-    return carFiltred;
   }
 
   findOne(id: number) {
@@ -43,7 +42,25 @@ export class CarsService {
   }
 
   update(id: number, updateCarDto: UpdateCarDto) {
-    return `This action updates a #${id} car`;
+    const { brand, model, plate, items, km, year, daily_price } = updateCarDto;
+    //const data: Record<string, any> = {};
+    const data: UpdateCarDto = {}
+
+    if((!brand) && (model)) throw new BadRequestException('brand is required');
+    if((brand) && (!model)) throw new BadRequestException('model is required');
+
+    if(brand) data.brand = brand;
+    if(model) data.model = model;
+    if(plate) data.plate = plate;
+    if(items) data.items = items;
+    if(km) data.km = km;
+    if(year) data.year = year;
+    if(daily_price) data.daily_price = daily_price;
+    data.update_at = new Date();
+    return this.prisma.car.update({
+      where: { id },
+      data
+    });
   }
 
   remove(id: number) {
