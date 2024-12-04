@@ -1,5 +1,8 @@
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('ACTIVE', 'INACTIVE', 'PENDING');
+CREATE TYPE "Status" AS ENUM ('ACTIVE', 'INACTIVE');
+
+-- CreateEnum
+CREATE TYPE "OrderStatus" AS ENUM ('OPEN', 'CANCELED', 'APPROVED', 'CLOSED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -9,7 +12,7 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "status" "Status" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "update_at" TIMESTAMP(3) NOT NULL,
+    "update_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -24,7 +27,7 @@ CREATE TABLE "Client" (
     "phone" TEXT NOT NULL,
     "status" "Status" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "update_at" TIMESTAMP(3) NOT NULL,
+    "update_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
 );
@@ -37,9 +40,10 @@ CREATE TABLE "Car" (
     "plate" TEXT NOT NULL,
     "year" INTEGER NOT NULL,
     "km" DOUBLE PRECISION NOT NULL,
+    "daily_rate" DOUBLE PRECISION NOT NULL,
     "status" "Status" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "update_at" TIMESTAMP(3) NOT NULL,
+    "update_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "items" TEXT[],
 
     CONSTRAINT "Car_pkey" PRIMARY KEY ("id")
@@ -59,9 +63,9 @@ CREATE TABLE "Order" (
     "total_rental_price" DOUBLE PRECISION NOT NULL,
     "order_closing_time" TIMESTAMP(3) NOT NULL,
     "late_fee" DOUBLE PRECISION NOT NULL,
-    "status" "Status" NOT NULL DEFAULT 'PENDING',
+    "status" "OrderStatus" NOT NULL DEFAULT 'OPEN',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "update_at" TIMESTAMP(3) NOT NULL,
+    "update_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
 );
