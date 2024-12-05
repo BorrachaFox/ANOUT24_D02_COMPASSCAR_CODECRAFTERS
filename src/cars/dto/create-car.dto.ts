@@ -11,6 +11,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { IsArrayUnique } from '../../Decorators/cars/car-items-unique.decorator';
 
 export class CreateCarDTO {
   @IsString()
@@ -23,7 +24,6 @@ export class CreateCarDTO {
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^[A-Z]{3}-\d{1}[A-J0-9]{1}\d{2}$/)
   plate: string;
 
   @IsInt()
@@ -45,6 +45,7 @@ export class CreateCarDTO {
   daily_rate: number;
 
   @IsArray()
+  @IsArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(5)
   @IsNotEmpty()

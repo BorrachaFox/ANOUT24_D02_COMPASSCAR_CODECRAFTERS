@@ -15,6 +15,7 @@ import { CarNotFoundGuard } from '../guards/cars/car-not-found.guard';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';
 import { UpdateCarDTO } from './dto/update-car.dto';
+import { CarPlateFormatGuard } from '../guards/cars/car-plate-format.guard';
 
 @UseGuards(IsAuthGuard)
 @Controller('cars')
@@ -22,6 +23,7 @@ export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   @Post()
+  @UseGuards(CarPlateFormatGuard)
   create(@Body() createCarDto: CreateCarDTO) {
     return this.carsService.create(createCarDto);
   }
@@ -38,7 +40,7 @@ export class CarsController {
   }
 
   @Patch(':id')
-  @UseGuards(CarNotFoundGuard)
+  @UseGuards(CarNotFoundGuard, CarPlateFormatGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDTO,
