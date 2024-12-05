@@ -11,13 +11,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
-//import { CarNotFoundGuard } from '../guards/cars/car-not-found.guard';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';
 import { UpdateCarDTO } from './dto/update-car.dto';
 import { CarPlateFormatGuard } from '../guards/cars/car-plate-format.guard';
 
-//@UseGuards(IsAuthGuard)
+@UseGuards(IsAuthGuard)
 @Controller('cars')
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
@@ -34,7 +33,6 @@ export class CarsController {
   }
 
   @Get(':id')
-  //@UseGuards(CarNotFoundGuard)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.carsService.findOne(id);
   }
