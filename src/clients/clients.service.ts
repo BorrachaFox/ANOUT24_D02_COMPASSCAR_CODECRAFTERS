@@ -112,6 +112,7 @@ export class ClientsService {
     const conflictingClient = await this.prisma.client.findFirst({
       where: {
         OR: [{ email: updateClientDto.email }, { cpf: updateClientDto.cpf }],
+        status: 'ACTIVE',
       },
     });
 
