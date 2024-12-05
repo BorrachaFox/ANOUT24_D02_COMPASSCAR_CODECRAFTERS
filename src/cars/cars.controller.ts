@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 import { CarNotFoundGuard } from '../guards/cars/car-not-found.guard';
 import { CarsService } from './cars.service';
@@ -28,7 +39,10 @@ export class CarsController {
 
   @Patch(':id')
   @UseGuards(CarNotFoundGuard)
-  update(@Param('id',ParseIntPipe) id: number, @Body() updateCarDto: UpdateCarDTO) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCarDto: UpdateCarDTO,
+  ) {
     return this.carsService.update(id, updateCarDto);
   }
 
