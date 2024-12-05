@@ -5,32 +5,41 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrdersDto } from './dto/create-order-dto';
+import { ClientsService } from '../clients/clients.service';
+import { CarsService } from '../cars/cars.service';
+import { OrdersDto } from './dto/order-save.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly clientService: ClientsService,
+    private readonly carService: CarsService,
+  ) {}
 
   async create(createOrdersDto: CreateOrdersDto) {
-    const client = await this.prisma.client.findUnique({
-      where: { id: createOrdersDto.client_id },
-    });
+    await this.clientService.existsClient(createOrdersDto.client_id);
+    const car = await this.carService.existsCar(createOrdersDto.car_id);
+    const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
 
-    if (!client) {
-      throw new Error('Client ID is invalid or does not exist.');
-    }
+    const diffInMs =
+      new Date(createOrdersDto.final_date).valueOf() -
+      new Date(createOrdersDto.start_date).valueOf();
+    const diffInDays = diffInMs / (1000 * 60 * 60);
 
-    const car = await this.prisma.car.findUnique({
-      where: { id: createOrdersDto.car_id },
-    });
-    console.log(car, client);
+    console.log(diffInDays);
+    const rental_fee = Number(dataCEP.gia) / 100;
 
-    if (!createOrdersDto.car_id) {
-      throw new Error('Car ID is required.');
-    }
+    const orderCreating: OrdersDto = {
+      ...createOrdersDto,
+      uf: dataCEP.uf,
+      city: dataCEP.localidade,
+      rental_fee: rental_fee,
+      total_rental_price: car.daily_rate * diffInDays + rental_fee,
+    };
 
-    return this.prisma.order.create({
-      data: createOrdersDto,
-    });
+    // @ts-ignore
+    return this.prisma.order.create({ data: orderCreating });
   }
 
   async findAll() {
@@ -51,5 +60,12 @@ export class OrdersService {
     } catch (error) {
       throw new InternalServerErrorException();
     }
+  }
+
+  async fetchViaAPI(cep: string) {
+    const formatCep = cep.split('-');
+    const newCep = [...formatCep];
+    const response = await fetch(`https://viacep.com.br/ws/${newCep}/json/`);
+    return response.json();
   }
 }
