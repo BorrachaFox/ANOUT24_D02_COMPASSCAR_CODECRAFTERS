@@ -1,0 +1,10 @@
+echo "🧹 Corrigindo e verificando arquivos staged com lint-staged..."
+
+npm run lint
+
+if [ $? -ne 0 ]; then
+  echo "❌ Alguns problemas ainda precisam ser corrigidos manualmente!"
+  exit 1
+fi
+
+echo "✅ Lint concluído e arquivos corrigidos! Commit permitido."
