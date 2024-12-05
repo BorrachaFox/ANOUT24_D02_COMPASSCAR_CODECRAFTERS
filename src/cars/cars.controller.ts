@@ -17,7 +17,7 @@ import { CreateCarDTO } from './dto/create-car.dto';
 import { UpdateCarDTO } from './dto/update-car.dto';
 import { CarPlateFormatGuard } from '../guards/cars/car-plate-format.guard';
 
-//@UseGuards(IsAuthGuard)
+@UseGuards(IsAuthGuard)
 @Controller('cars')
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
