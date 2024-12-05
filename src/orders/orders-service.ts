@@ -4,10 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateOrdersDto } from './dto/create-order-dto';
+import { CreateOrdersDto } from './dto/create-order.dto';
 import { ClientsService } from '../clients/clients.service';
 import { CarsService } from '../cars/cars.service';
-import { OrdersDto } from './dto/order-save.dto';
+import { OrderSaveDTO } from './dto/order-save.dto';
 
 @Injectable()
 export class OrdersService {
@@ -27,10 +27,9 @@ export class OrdersService {
       new Date(createOrdersDto.start_date).valueOf();
     const diffInDays = diffInMs / (1000 * 60 * 60);
 
-    console.log(diffInDays);
     const rental_fee = Number(dataCEP.gia) / 100;
 
-    const orderCreating: OrdersDto = {
+    const orderCreating: OrderSaveDTO = {
       ...createOrdersDto,
       uf: dataCEP.uf,
       city: dataCEP.localidade,
