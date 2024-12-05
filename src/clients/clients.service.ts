@@ -111,6 +111,8 @@ export class ClientsService {
       }
     }
 
+    // ADD CPF COLISION VALIDATION
+
     try {
       return this.prisma.client.update({
         where: { id },
