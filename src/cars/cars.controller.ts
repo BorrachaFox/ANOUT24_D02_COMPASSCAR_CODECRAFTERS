@@ -1,21 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
-import { CarsService } from './cars.service';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 import { CarNotFoundGuard } from '../guards/cars/car-not-found.guard';
+import { CarsService } from './cars.service';
+import { CreateCarDTO } from './dto/create-car.dto';
+import { UpdateCarDTO } from './dto/update-car.dto';
 
+@UseGuards(IsAuthGuard)
 @Controller('cars')
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   @Post()
-  create(@Body() createCarDto: CreateCarDto) {
+  create(@Body() createCarDto: CreateCarDTO) {
     return this.carsService.create(createCarDto);
   }
 
   @Get()
-  findAll() {
-    return this.carsService.findAll();
+  async findAll(@Query() query: any) {
+    return this.carsService.findAll(query);
   }
 
   @Get(':id')
@@ -25,12 +38,17 @@ export class CarsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCarDto: UpdateCarDto) {
-    return this.carsService.update(+id, updateCarDto);
+  @UseGuards(CarNotFoundGuard)
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCarDto: UpdateCarDTO,
+  ) {
+    return this.carsService.update(id, updateCarDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.carsService.remove(+id);
+  @UseGuards(CarNotFoundGuard)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.carsService.remove(id);
   }
 }
