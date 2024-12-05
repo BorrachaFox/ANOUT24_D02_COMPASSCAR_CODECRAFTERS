@@ -16,10 +16,15 @@ export class AuthService {
 
   createToken(user: any) {
     return {
-      accessToken: this.jwtService.sign({
-        id: user.id,
-        email: user.email,
-      }),
+      accessToken: this.jwtService.sign(
+        {
+          id: user.id,
+          email: user.email,
+        },
+        {
+          expiresIn: process.env.JWT_EXPIRATION,
+        },
+      ),
     };
   }
 

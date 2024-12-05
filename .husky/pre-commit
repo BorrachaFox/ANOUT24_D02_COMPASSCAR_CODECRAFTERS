@@ -1,4 +1,4 @@
-echo "🧹 Corrigindo e verificando arquivos staged com lint-staged..."
+echo "🧹 Corrigindo e verificando arquivos staged com lint..."
 
 npm run lint
 
