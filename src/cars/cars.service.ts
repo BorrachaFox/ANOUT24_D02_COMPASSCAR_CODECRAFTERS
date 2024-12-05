@@ -59,12 +59,11 @@ export class CarsService {
   }
 
   findOne(id: number) {
-    return this.prisma.car.findUnique({
-      where: { id: id },
-    });
+    return this.existsCar(id);
   }
 
-  update(id: number, updateCarDto: UpdateCarDTO) {
+  async update(id: number, updateCarDto: UpdateCarDTO) {
+    const presentData = await this.existsCar(id);
     const { brand, model, plate, items, km, year, daily_rate } = updateCarDto;
     //const data: Record<string, any> = {};
     const data: UpdateCarDTO = {};
@@ -86,7 +85,8 @@ export class CarsService {
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const presentData = await this.existsCar(id);
     return this.prisma.car.update({
       where: { id },
       data: {
@@ -94,5 +94,15 @@ export class CarsService {
         update_at: new Date(),
       },
     });
+  }
+
+  async existsCar(id: number) {
+    const existingCar = await this.prisma.car.findFirst({
+      where: { id },
+    });
+    if (!existingCar) {
+      throw new BadRequestException('Car not found');
+    }
+    return existingCar;
   }
 }
