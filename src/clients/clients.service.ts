@@ -5,8 +5,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateClientDto } from './dto/create-client.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 
 @Injectable()
@@ -59,7 +59,6 @@ export class ClientsService {
       const client = await this.prisma.client.findMany({
         where,
       });
-      console.log(client);
 
       if (client.length === 0) {
         throw new NotFoundException('No client found');
@@ -97,6 +96,7 @@ export class ClientsService {
         status: 'ACTIVE',
       },
     });
+
     if (validateEmail) {
       throw new ConflictException('Email already in use by an active client.'); //TODO: Possível utils para usar com outros endpoints
     }
@@ -130,10 +130,11 @@ export class ClientsService {
       where: {
         client_id: id,
         status: {
-          in: ['ACTIVE', 'PENDING'],
+          in: ['OPEN', 'APPROVED'],
         },
       },
     });
+
     if (orderVerification) {
       throw new BadRequestException('Client contains pending or active order.');
     }

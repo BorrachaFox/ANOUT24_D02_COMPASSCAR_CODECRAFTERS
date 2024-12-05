@@ -15,11 +15,6 @@ export class IsAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
-    const path = request.url;
-    if (path.includes('clients')) {
-      return true; //Temporario, apenas para testes
-    }
-
     if (!token) {
       throw new UnauthorizedException();
     }

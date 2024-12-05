@@ -39,7 +39,7 @@ export class UsersController {
 
   @Get(':id')
   @UseGuards(UserNotFoundGuard)
-  async findOne(@Param('id' ,ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findOne(id);
     return user;
   }

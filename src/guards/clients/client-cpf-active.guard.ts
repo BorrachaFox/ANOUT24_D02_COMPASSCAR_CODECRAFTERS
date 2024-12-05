@@ -19,8 +19,6 @@ export class ClientCpfActiveGuard implements CanActivate {
       where: { cpf, status: Status.ACTIVE },
     });
 
-    console.log(client);
-
     if (client) {
       throw new UnauthorizedException('Cpf is already used');
     }
