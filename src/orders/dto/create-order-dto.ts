@@ -18,23 +18,4 @@ export class CreateOrdersDto {
 
   @IsString()
   cep: string;
-
-  @IsString()
-  uf: string;
-
-  @IsString()
-  city: string;
-
-  @IsNumber()
-  rental_fee: number;
-
-  @IsNumber()
-  total_rental_price: number;
-
-  @Type(() => Date)
-  @IsDate()
-  order_closing_time: Date;
-
-  @IsNumber()
-  late_fee: number;
 }
