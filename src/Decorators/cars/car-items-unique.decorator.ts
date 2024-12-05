@@ -1,7 +1,11 @@
-import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+} from 'class-validator';
 
-export function IsArrayUnique( validationOptions?: ValidationOptions) {
-  return function( object: object, propertyKey: string ) {
+export function IsArrayUnique(validationOptions?: ValidationOptions) {
+  return function (object: object, propertyKey: string) {
     registerDecorator({
       name: 'isArrayUnique',
       target: object.constructor,

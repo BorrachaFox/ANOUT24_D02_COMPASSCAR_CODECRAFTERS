@@ -16,7 +16,7 @@ export class CarsService {
     const existingCar = await this.prisma.car.findFirst({
       where: {
         plate: createCarDto.plate,
-        status: 'ACTIVE',
+        status: Status.ACTIVE,
       },
     });
 
@@ -25,7 +25,7 @@ export class CarsService {
         'There is already a car with that same license plate.',
       );
     }
-    return await this.prisma.car.create({ data: createCarDto });
+    return this.prisma.car.create({ data: createCarDto });
   }
 
   findAll(query) {
