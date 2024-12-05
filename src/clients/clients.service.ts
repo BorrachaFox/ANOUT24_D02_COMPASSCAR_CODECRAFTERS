@@ -13,18 +13,35 @@ import { UpdateClientDto } from './dto/update-client.dto';
 export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(CreateClientDto: CreateClientDto) {
+  async create(createClientDto: CreateClientDto) {
     const today = new Date();
-    const birthday = new Date(CreateClientDto.birthday);
+    const birthday = new Date(createClientDto.birthday);
     const clientAge = today.getFullYear() - birthday.getFullYear();
 
     if (clientAge <= 18) {
-      throw new BadRequestException('Client must be 19 years or older');
+      throw new BadRequestException('Client must be 18 years or older');
+    }
+
+    const conflictingClient = await this.prisma.client.findFirst({
+      where: {
+        OR: [{ email: createClientDto.email }, { cpf: createClientDto.cpf }],
+      },
+    });
+
+    if (conflictingClient) {
+      if (conflictingClient.email === createClientDto.email) {
+        throw new ConflictException(
+          'Email already in use by an active client.',
+        );
+      }
+      if (conflictingClient.cpf === createClientDto.cpf) {
+        throw new ConflictException('Cpf already in use by an active client.');
+      }
     }
 
     return this.prisma.client.create({
       data: {
-        ...CreateClientDto,
+        ...createClientDto,
         birthday,
       },
     });
@@ -81,15 +98,10 @@ export class ClientsService {
   }
 
   async update(id: number, updateClientDto: UpdateClientDto) {
-    const client = await this.prisma.client.findFirst({
-      where: {
-        id,
-      },
-    });
+    const birthday = new Date(updateClientDto.birthday);
 
     if (updateClientDto.birthday) {
       const today = new Date();
-      const birthday = new Date(updateClientDto.birthday);
       const clientAge = today.getFullYear() - birthday.getFullYear();
 
       if (clientAge <= 18) {
@@ -97,38 +109,31 @@ export class ClientsService {
       }
     }
 
-    if (updateClientDto.email && updateClientDto.email != client.email) {
-      const emailAlreadyExist = await this.prisma.client.findFirst({
-        where: {
-          email: updateClientDto.email,
-        },
-      });
+    const conflictingClient = await this.prisma.client.findFirst({
+      where: {
+        OR: [{ email: updateClientDto.email }, { cpf: updateClientDto.cpf }],
+      },
+    });
 
-      if (emailAlreadyExist) {
+    if (conflictingClient) {
+      if (conflictingClient.email === updateClientDto.email) {
         throw new ConflictException(
           'Email already in use by an active client.',
         );
       }
-    }
-
-    if (updateClientDto.cpf && updateClientDto.cpf != client.cpf) {
-      const cpfAlreadyExist = await this.prisma.client.findFirst({
-        where: {
-          cpf: updateClientDto.cpf,
-        },
-      });
-
-      if (cpfAlreadyExist) {
+      if (conflictingClient.cpf === updateClientDto.cpf) {
         throw new ConflictException('Cpf already in use by an active client.');
       }
     }
 
+    const data = updateClientDto.birthday
+      ? { ...updateClientDto, birthday }
+      : { ...updateClientDto };
+
     try {
       return this.prisma.client.update({
         where: { id },
-        data: {
-          ...updateClientDto,
-        },
+        data,
       });
     } catch (error) {
       throw new InternalServerErrorException();

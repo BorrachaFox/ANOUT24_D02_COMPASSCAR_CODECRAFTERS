@@ -19,7 +19,7 @@ export class ClientNotFoundGuard implements CanActivate {
     });
 
     if (client.length === 0) {
-      throw new NotFoundException('user not found');
+      throw new NotFoundException('client not found');
     }
     return true;
   }

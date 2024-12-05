@@ -13,15 +13,12 @@ import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
-import { ClientEmailActiveGuard } from 'src/guards/clients/client-email-active.guard';
-import { ClientCpfActiveGuard } from 'src/guards/clients/client-cpf-active.guard';
 import { ClientNotFoundGuard } from 'src/guards/clients/client-not-found.guard';
 
 @UseGuards(IsAuthGuard)
 @Controller('clients')
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
-  @UseGuards(ClientEmailActiveGuard, ClientCpfActiveGuard)
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientsService.create(createClientDto);
