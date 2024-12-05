@@ -111,6 +111,18 @@ export class ClientsService {
       }
     }
 
+    if (updateClientDto.cpf && updateClientDto.cpf != client.cpf) {
+      const cpfAlreadyExist = await this.prisma.client.findFirst({
+        where: {
+          cpf: updateClientDto.cpf,
+        },
+      });
+
+      if (cpfAlreadyExist) {
+        throw new ConflictException('Cpf already in use by an active client.');
+      }
+    }
+
     try {
       return this.prisma.client.update({
         where: { id },
