@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -87,6 +88,28 @@ export class ClientsService {
 
     if (clientAge <= 18) {
       throw new BadRequestException('Client must be 19 years or older');
+    }
+
+    const { email } = updateClientDto;
+    const validateEmail = await this.prisma.client.findFirst({
+      where: {
+        email,
+        status: 'ACTIVE',
+      },
+    });
+    if (validateEmail) {
+      throw new ConflictException('Email already in use by an active client.'); //TODO: Possível utils para usar com outros endpoints
+    }
+
+    const { cpf } = updateClientDto;
+    const validateCpf = await this.prisma.client.findFirst({
+      where: {
+        cpf,
+        status: 'ACTIVE',
+      },
+    });
+    if (validateCpf) {
+      throw new ConflictException('Cpf already in use by an active client.'); //TODO: Possível utils para usar com outros endpoints
     }
 
     try {

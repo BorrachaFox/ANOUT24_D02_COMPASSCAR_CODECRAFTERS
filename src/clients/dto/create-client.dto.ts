@@ -26,5 +26,5 @@ export class CreateClientDto {
   phone: string;
 
   @IsEmpty()
-  status: string;
+  status;
 }

@@ -47,7 +47,7 @@ export class UsersService {
       const users = await this.prisma.user.findMany({
         where,
       });
-      console.log(users)
+      console.log(users);
 
       if (users.length === 0) {
         throw new NotFoundException('No users found  ');
@@ -118,7 +118,7 @@ export class UsersService {
     user = await this.prisma.user.update({
       where: { id },
       data: {
-        status: 'inactive',
+        status: 'INACTIVE',
       },
     });
     return `User ${id} deactivated successfully.`;
