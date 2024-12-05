@@ -5,8 +5,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateClientDto } from './dto/create-client.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 
 @Injectable()
@@ -15,8 +15,8 @@ export class ClientsService {
 
   create(CreateClientDto: CreateClientDto) {
     const today = new Date();
-    const age = new Date(CreateClientDto.birthday);
-    const clientAge = today.getFullYear() - age.getFullYear();
+    const birthday = new Date(CreateClientDto.birthday);
+    const clientAge = today.getFullYear() - birthday.getFullYear();
 
     if (clientAge <= 18) {
       throw new BadRequestException('Client must be 19 years or older');
@@ -25,7 +25,7 @@ export class ClientsService {
     return this.prisma.client.create({
       data: {
         ...CreateClientDto,
-        birthday: age,
+        birthday,
       },
     });
   }
@@ -59,7 +59,6 @@ export class ClientsService {
       const client = await this.prisma.client.findMany({
         where,
       });
-      console.log(client);
 
       if (client.length === 0) {
         throw new NotFoundException('No client found');
@@ -82,42 +81,41 @@ export class ClientsService {
   }
 
   async update(id: number, updateClientDto: UpdateClientDto) {
-    const today = new Date();
-    const age = new Date(updateClientDto.birthday);
-    const clientAge = today.getFullYear() - age.getFullYear();
-
-    if (clientAge <= 18) {
-      throw new BadRequestException('Client must be 19 years or older');
-    }
-
-    const { email } = updateClientDto;
-    const validateEmail = await this.prisma.client.findFirst({
+    const client = await this.prisma.client.findFirst({
       where: {
-        email,
-        status: 'ACTIVE',
+        id,
       },
     });
-    if (validateEmail) {
-      throw new ConflictException('Email already in use by an active client.'); //TODO: Possível utils para usar com outros endpoints
+
+    if (updateClientDto.birthday) {
+      const today = new Date();
+      const birthday = new Date(updateClientDto.birthday);
+      const clientAge = today.getFullYear() - birthday.getFullYear();
+
+      if (clientAge <= 18) {
+        throw new BadRequestException('Client must be 18 years or older');
+      }
     }
 
-    const { cpf } = updateClientDto;
-    const validateCpf = await this.prisma.client.findFirst({
-      where: {
-        cpf,
-        status: 'ACTIVE',
-      },
-    });
-    if (validateCpf) {
-      throw new ConflictException('Cpf already in use by an active client.'); //TODO: Possível utils para usar com outros endpoints
+    if (updateClientDto.email && updateClientDto.email != client.email) {
+      const emailAlreadyExist = await this.prisma.client.findFirst({
+        where: {
+          email: updateClientDto.email,
+        },
+      });
+
+      if (emailAlreadyExist) {
+        throw new ConflictException(
+          'Email already in use by an active client.',
+        );
+      }
     }
 
     try {
-      await this.prisma.client.update({
+      return this.prisma.client.update({
         where: { id },
         data: {
           ...updateClientDto,
-          birthday: age,
         },
       });
     } catch (error) {
@@ -130,10 +128,11 @@ export class ClientsService {
       where: {
         client_id: id,
         status: {
-          in: ['ACTIVE', 'PENDING'],
+          in: ['OPEN', 'APPROVED'],
         },
       },
     });
+
     if (orderVerification) {
       throw new BadRequestException('Client contains pending or active order.');
     }

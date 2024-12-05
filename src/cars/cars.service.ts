@@ -1,39 +1,61 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { Status } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateCarDTO } from './dto/create-car.dto';
+import { UpdateCarDTO } from './dto/update-car.dto';
 
 @Injectable()
 export class CarsService {
   constructor(private readonly prisma: PrismaService) {}
-  create(createCarDto: CreateCarDto) {
-    
-    return 'This action adds a new car';
+
+  async create(createCarDto: CreateCarDTO) {
+    const existingCar = await this.prisma.car.findFirst({
+      where: {
+        plate: createCarDto.plate,
+        status: 'ACTIVE',
+      },
+    });
+
+    if (existingCar) {
+      throw new ConflictException(
+        'There is already a car with that same license plate.',
+      );
+    }
+    return await this.prisma.car.create({ data: createCarDto });
   }
 
   findAll(query) {
-    let { brand, km, year, status, daily_price, page, limit } = query;
     const where: Record<string, any> = {};
 
-    if(((page) && (page > 10)) || (!page)) page = 10;
-    if(((limit) && (limit > 5)) || (!limit)) page = 5;
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    let limit = parseInt(query.limit, 10) || 5;
 
-    const take:number = Number(limit)
-    let skip: number = Number((page - 1) * limit);
+    if (limit <= 0) {
+      limit = 5;
+    } else if (limit > 10) {
+      limit = 10;
+    }
 
-    if(brand) where.brand = { contains: brand};
-    if(km) where.km = { contains: km};
-    if(year) where.year = { contains: year};
-    if(status) where.status = { contains: status};
-    if(daily_price) where.daily_price = { contains: daily_price};
-    const carFiltred = this.prisma.car.findMany({
+    const take: number = Number(limit);
+    const skip: number = Number((page - 1) * limit);
+
+    const { brand, km, year, status, daily_rate } = query;
+
+    if (brand) where.brand = { contains: brand, mode: 'insensitive' };
+    if (km) where.km = { gte: Number(km) };
+    if (year) where.year = { gte: Number(year) };
+    if (status) where.status = { contains: status, mode: 'insensitive' };
+    if (daily_rate) where.daily_rate = { gte: Number(daily_rate) };
+
+    return this.prisma.car.findMany({
       where,
       skip,
       take,
-      },
-    );
-    return carFiltred;
+    });
   }
 
   findOne(id: number) {
@@ -42,8 +64,26 @@ export class CarsService {
     });
   }
 
-  update(id: number, updateCarDto: UpdateCarDto) {
-    return `This action updates a #${id} car`;
+  update(id: number, updateCarDto: UpdateCarDTO) {
+    const { brand, model, plate, items, km, year, daily_rate } = updateCarDto;
+    //const data: Record<string, any> = {};
+    const data: UpdateCarDTO = {};
+
+    if (!brand && model) throw new BadRequestException('brand is required');
+    if (brand && !model) throw new BadRequestException('model is required');
+
+    if (brand) data.brand = brand;
+    if (model) data.model = model;
+    if (plate) data.plate = plate;
+    if (items) data.items = items;
+    if (km) data.km = km;
+    if (year) data.year = year;
+    if (daily_rate) data.daily_rate = daily_rate;
+    data.update_at = new Date();
+    return this.prisma.car.update({
+      where: { id },
+      data,
+    });
   }
 
   remove(id: number) {
@@ -52,7 +92,7 @@ export class CarsService {
       data: {
         status: Status.INACTIVE,
         update_at: new Date(),
-      }
-    })
+      },
+    });
   }
 }

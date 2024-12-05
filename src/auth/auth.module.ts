@@ -9,9 +9,6 @@ import { AuthController } from './auth.controller';
   imports: [
     JwtModule.register({
       secret: String(process.env.JWT_SECRET),
-      signOptions: {
-        expiresIn: process.env.JWT_EXPIRATION,
-      },
     }),
     forwardRef(() => UsersModule),
     PrismaModule,
