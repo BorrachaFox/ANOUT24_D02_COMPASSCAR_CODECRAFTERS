@@ -1,7 +1,7 @@
 import { CreateOrdersDto } from './create-order.dto';
 import { IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class OrderSaveDTO extends CreateOrdersDto {
+export class SaveOrderDto extends CreateOrdersDto {
   @IsString()
   uf: string;
 
