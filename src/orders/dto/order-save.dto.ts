@@ -15,8 +15,8 @@ export class OrderSaveDTO extends CreateOrdersDto {
   total_rental_price: number;
 
   @IsDateString()
-  order_closing_time?: Date;
+  order_closing_time?: string;
 
   @IsNumber()
-  late_fee?: Date;
+  late_fee?: number;
 }
