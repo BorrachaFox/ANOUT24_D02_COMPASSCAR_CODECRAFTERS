@@ -8,6 +8,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { Status, OrderStatus } from '@prisma/client';
 
 @Injectable()
 export class ClientsService {
@@ -110,6 +111,7 @@ export class ClientsService {
     const conflictingClient = await this.prisma.client.findFirst({
       where: {
         OR: [{ email: updateClientDto.email }, { cpf: updateClientDto.cpf }],
+        status: Status.ACTIVE,
       },
     });
 
@@ -144,7 +146,7 @@ export class ClientsService {
       where: {
         client_id: id,
         status: {
-          in: ['OPEN', 'APPROVED'],
+          in: [OrderStatus.OPEN, OrderStatus.APPROVED],
         },
       },
     });
@@ -156,7 +158,7 @@ export class ClientsService {
     try {
       await this.prisma.client.update({
         where: { id },
-        data: { status: 'INACTIVE' },
+        data: { status: Status.ACTIVE },
       });
     } catch (error) {
       throw new InternalServerErrorException();
