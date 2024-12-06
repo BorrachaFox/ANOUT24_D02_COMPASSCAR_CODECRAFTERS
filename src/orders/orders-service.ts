@@ -23,7 +23,7 @@ export class OrdersService {
   async create(createOrdersDto: CreateOrdersDto) {
     await this.clientService.existsClient(createOrdersDto.client_id);
     const car = await this.carService.existsCar(createOrdersDto.car_id);
-    const dataCEP = await this.fetchViaCEP(createOrdersDto.cep);
+    const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
 
     const diffInMs =
       new Date(createOrdersDto.final_date).valueOf() -
