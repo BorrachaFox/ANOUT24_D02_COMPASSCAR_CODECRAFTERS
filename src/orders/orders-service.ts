@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -8,6 +10,7 @@ import { CreateOrdersDto } from './dto/create-order.dto';
 import { ClientsService } from '../clients/clients.service';
 import { CarsService } from '../cars/cars.service';
 import { OrderSaveDTO } from './dto/order-save.dto';
+import { OrderStatus } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -20,7 +23,7 @@ export class OrdersService {
   async create(createOrdersDto: CreateOrdersDto) {
     await this.clientService.existsClient(createOrdersDto.client_id);
     const car = await this.carService.existsCar(createOrdersDto.car_id);
-    const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
+    const dataCEP = await this.fetchViaCEP(createOrdersDto.cep);
 
     const diffInMs =
       new Date(createOrdersDto.final_date).valueOf() -
@@ -47,18 +50,21 @@ export class OrdersService {
 
   async findOne(id: number) {
     try {
-      const order = await this.prisma.order.findUnique({
-        where: { id },
-      });
-
-      if (!order) {
-        throw new NotFoundException(`Order with ID ${id} not found`);
-      }
-
-      return order;
+      return this.existsOrder(id);
     } catch (error) {
       throw new InternalServerErrorException();
     }
+  }
+
+  async remove(id: number) {
+    const order = await this.existsOrder(id);
+    if (order.status != OrderStatus.OPEN) {
+      throw new ConflictException('Order cannot be canceled');
+    }
+    return this.prisma.order.update({
+      where: { id },
+      data: { status: OrderStatus.CANCELED, update_at: new Date() },
+    });
   }
 
   async fetchViaAPI(cep: string) {
@@ -66,5 +72,15 @@ export class OrdersService {
     const newCep = [...formatCep];
     const response = await fetch(`https://viacep.com.br/ws/${newCep}/json/`);
     return response.json();
+  }
+
+  async existsOrder(id: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+    });
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+    return order;
   }
 }
