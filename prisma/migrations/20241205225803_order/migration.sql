@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Order" ALTER COLUMN "uf" DROP NOT NULL,
+ALTER COLUMN "city" DROP NOT NULL,
+ALTER COLUMN "rental_fee" DROP NOT NULL,
+ALTER COLUMN "total_rental_price" DROP NOT NULL,
+ALTER COLUMN "order_closing_time" DROP NOT NULL,
+ALTER COLUMN "late_fee" DROP NOT NULL;

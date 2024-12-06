@@ -88,16 +88,14 @@ export class ClientsService {
   }
 
   async findOne(id: number) {
-    try {
-      this.prisma.client.findFirst({
-        where: { id },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException();
-    }
+    await this.existsClient(id);
+    return this.prisma.client.findFirst({
+      where: { id },
+    });
   }
 
   async update(id: number, updateClientDto: UpdateClientDto) {
+    await this.existsClient(id);
     const birthday = new Date(updateClientDto.birthday);
 
     if (updateClientDto.birthday) {
@@ -141,6 +139,7 @@ export class ClientsService {
   }
 
   async remove(id: number) {
+    await this.existsClient(id);
     const orderVerification = await this.prisma.order.findFirst({
       where: {
         client_id: id,
@@ -161,6 +160,15 @@ export class ClientsService {
       });
     } catch (error) {
       throw new InternalServerErrorException();
+    }
+  }
+
+  async existsClient(id: number) {
+    const client = await this.prisma.client.findFirst({
+      where: { id },
+    });
+    if (!client) {
+      throw new NotFoundException('Client does not exist');
     }
   }
 }

@@ -14,7 +14,6 @@ import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
-import { UserNotFoundGuard } from '../guards/user/user-not-found.guard';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 
 @UseGuards(IsAuthGuard)
@@ -38,7 +37,6 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(UserNotFoundGuard)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findOne(id);
     return user;
