@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { ClientsService } from '../clients/clients.service';
 import { CarsService } from '../cars/cars.service';
-import { OrderSaveDTO } from './dto/order-save.dto';
+import { SaveOrderDto } from './dto/save-order.dto';
 import { OrderStatus } from '@prisma/client';
 
 @Injectable()
@@ -32,7 +32,7 @@ export class OrdersService {
 
     const rental_fee = Number(dataCEP.gia) / 100;
 
-    const orderCreating: OrderSaveDTO = {
+    const orderCreating: SaveOrderDto = {
       ...createOrdersDto,
       uf: dataCEP.uf,
       city: dataCEP.localidade,
