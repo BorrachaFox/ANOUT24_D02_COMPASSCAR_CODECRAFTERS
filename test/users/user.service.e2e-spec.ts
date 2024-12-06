@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import * as bcrypt from 'bcrypt';
 import { AppModule } from '../../src/app.module';
-import { PrismaService } from './../../src/prisma/prisma.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 
 describe('Patch route', () => {
   let app: INestApplication;

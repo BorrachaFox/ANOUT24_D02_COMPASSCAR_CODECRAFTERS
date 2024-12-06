@@ -40,7 +40,7 @@ export class OrdersService {
       total_rental_price: car.daily_rate * diffInDays + rental_fee,
     };
 
-  /*   // @ts-ignore
+    /*   // @ts-ignore
     return this.prisma.order.create({ data: orderCreating }); */
   }
 

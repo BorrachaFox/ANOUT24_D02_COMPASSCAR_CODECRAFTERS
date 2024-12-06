@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json",
+    "pretest:int": "dotenv -e .env.test -- prisma migrate reset --force",
     "prepare": "husky"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "dotenv-cli": "^7.4.4",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "save-dev": "^0.0.1-security"
