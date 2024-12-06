@@ -1,5 +1,6 @@
 import {
-  BadRequestException, ConflictException,
+  BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -49,7 +50,7 @@ export class OrdersService {
 
   async findOne(id: number) {
     try {
-      return this.existsOrder(id)
+      return this.existsOrder(id);
     } catch (error) {
       throw new InternalServerErrorException();
     }
@@ -57,23 +58,23 @@ export class OrdersService {
 
   async remove(id: number) {
     const order = await this.existsOrder(id);
-    if(order.status != OrderStatus.OPEN){
+    if (order.status != OrderStatus.OPEN) {
       throw new ConflictException('Order cannot be canceled');
     }
     return this.prisma.order.update({
-      where:{id},
+      where: { id },
       data: { status: OrderStatus.CANCELED, update_at: new Date() },
     });
   }
 
-  async fetchViaCEP(cep: string) {
+  async fetchViaAPI(cep: string) {
     const formatCep = cep.split('-');
     const newCep = [...formatCep];
     const response = await fetch(`https://viacep.com.br/ws/${newCep}/json/`);
     return response.json();
   }
 
-  async existsOrder(id: number){
+  async existsOrder(id: number) {
     const order = await this.prisma.order.findUnique({
       where: { id },
     });
