@@ -16,7 +16,7 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 
-@UseGuards(IsAuthGuard)
+//@UseGuards(IsAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
