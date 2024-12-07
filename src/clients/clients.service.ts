@@ -170,7 +170,7 @@ export class ClientsService {
       where: { id },
     });
     if (!client) {
-      throw new NotFoundException('Client does not exist');
+      throw new NotFoundException('Client does not exist.');
     }
   }
 }
