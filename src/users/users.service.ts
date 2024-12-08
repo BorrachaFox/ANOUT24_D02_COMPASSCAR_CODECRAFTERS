@@ -49,14 +49,14 @@ export class UsersService {
       });
 
       if (users.length === 0) {
-        throw new NotFoundException('No users found  ');
+        throw new NotFoundException('No users found.');
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const usersWithoutPassword = users.map(({ password, ...user }) => user);
 
       return usersWithoutPassword;
     } catch {
-      throw new NotFoundException('user not found with this filter');
+      throw new NotFoundException('User not found with this filter.');
     }
   }
 
@@ -81,14 +81,16 @@ export class UsersService {
     }
 
     const { email } = updateUserDto;
-    const validateEmail = await this.prisma.user.findFirst({
-      where: {
-        email,
-        status: 'ACTIVE',
-      },
-    });
-    if (validateEmail) {
-      throw new ConflictException('Email already in use by an active user.');
+    if (email) {
+      const validateEmail = await this.prisma.user.findFirst({
+        where: {
+          email,
+          status: 'ACTIVE',
+        },
+      });
+      if (validateEmail) {
+        throw new ConflictException('Email already in use by an active user.');
+      }
     }
 
     let { password } = updateUserDto;
@@ -112,7 +114,7 @@ export class UsersService {
       where: { id },
     });
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User not found.`);
     }
     user = await this.prisma.user.update({
       where: { id },
@@ -120,6 +122,6 @@ export class UsersService {
         status: 'INACTIVE',
       },
     });
-    return `User ${id} deactivated successfully.`;
+    return `User ${id} desactivated successfully.`;
   }
 }
