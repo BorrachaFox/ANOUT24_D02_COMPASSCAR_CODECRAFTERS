@@ -22,7 +22,7 @@ async function seeds() {
     const userSeed: CreateUserDTO = {
       name: 'John Doe',
       email: 'john@doe.com',
-      password: await bcrypt.hash('abcd123456', await bcrypt.genSalt()),
+      password: 'abcd123456'
     };
     await userService.create(userSeed);
     Logger.log('User seeded successfully.');
