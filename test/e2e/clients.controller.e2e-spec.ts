@@ -28,6 +28,8 @@ describe('ClientsController (e2e)', () => {
     phone: '558836550897',
   };
 
+  const cleanCpf = testData.cpf.replace(/\D/g, '');
+
   let createdClientId: number;
 
   beforeAll(async () => {
@@ -62,15 +64,10 @@ describe('ClientsController (e2e)', () => {
     createdClientId = response.body.id;
 
     expect(response.status).toBe(201);
-    expect(response.body).toEqual(
-      expect.objectContaining({
-        name: testData.name,
-        cpf: testData.cpf,
-        email: testData.email,
-        phone: testData.phone,
-      }),
-    );
-
+    expect(response.body.name).toEqual(testData.name);
+    expect(response.body.cpf).toEqual(cleanCpf);
+    expect(response.body.email).toEqual(testData.email);
+    expect(response.body.phone).toEqual(testData.phone);
     expect(response.body).toHaveProperty('status', 'ACTIVE');
     expect(response.body).toHaveProperty('created_at');
     expect(response.body).toHaveProperty('update_at');
@@ -83,7 +80,7 @@ describe('ClientsController (e2e)', () => {
     expect(createdClient).toEqual(
       expect.objectContaining({
         name: testData.name,
-        cpf: testData.cpf,
+        cpf: cleanCpf,
         email: testData.email,
         phone: testData.phone,
       }),
@@ -114,7 +111,7 @@ describe('ClientsController (e2e)', () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('id', createdClientId);
     expect(response.body).toHaveProperty('name', testData.name);
-    expect(response.body).toHaveProperty('cpf', testData.cpf);
+    expect(response.body).toHaveProperty('cpf', cleanCpf);
     expect(response.body).toHaveProperty('email', testData.email);
   });
 
