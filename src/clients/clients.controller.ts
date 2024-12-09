@@ -20,7 +20,9 @@ import {
   PatchResponses,
   DeleteResponses,
 } from 'src/swagger/swagger-clients';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)
 @Controller('clients')
 export class ClientsController {
@@ -34,13 +36,8 @@ export class ClientsController {
 
   @GetAllResponses()
   @Get()
-  async findAll(
-    @Query('name') name?: string,
-    @Query('cpf') cpf?: string,
-    @Query('birthday') birthday?: string,
-    @Query('email') email?: string,
-  ) {
-    return this.clientsService.findAll(email, name, birthday, cpf);
+  async findAll(@Query() query: any) {
+    return this.clientsService.findAll(query);
   }
 
   @GetOneResponses()

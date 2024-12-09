@@ -14,7 +14,6 @@ import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';
 import { UpdateCarDTO } from './dto/update-car.dto';
-import { CarPlateFormatGuard } from '../guards/cars/car-plate-format.guard';
 import {
   DeleteResponses,
   GetAllResponses,
@@ -22,7 +21,9 @@ import {
   PatchResponses,
   PostResponses,
 } from 'src/swagger/swagger-cars';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)
 @Controller('cars')
 export class CarsController {
@@ -30,7 +31,6 @@ export class CarsController {
 
   @PostResponses()
   @Post()
-  @UseGuards(CarPlateFormatGuard)
   create(@Body() createCarDto: CreateCarDTO) {
     return this.carsService.create(createCarDto);
   }
@@ -49,7 +49,6 @@ export class CarsController {
 
   @PatchResponses()
   @Patch(':id')
-  @UseGuards(CarPlateFormatGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDTO,

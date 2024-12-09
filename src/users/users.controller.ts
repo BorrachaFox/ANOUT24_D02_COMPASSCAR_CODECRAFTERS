@@ -13,7 +13,6 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
 import {
   DeleteResponses,
@@ -22,27 +21,24 @@ import {
   PatchResponses,
   PostResponses,
 } from 'src/swagger/swagger-users';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseGuards(IsAuthGuard)
+@ApiBearerAuth('access-token')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @PostResponses()
   @Post()
-  @UseGuards(UserEmailActiveGuard)
   create(@Body() createUserDto: CreateUserDTO) {
     return this.usersService.create(createUserDto);
   }
 
   @GetAllResponses()
   @Get()
-  async findAll(
-    @Query('email') email?: string,
-    @Query('name') name?: string,
-    @Query('status') status?: string,
-  ) {
-    return this.usersService.findAll(email, name, status);
+  async findAll(@Query() query: any) {
+    return this.usersService.findAll(query);
   }
 
   @GetOneResponses()

@@ -13,6 +13,7 @@ export class CarsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createCarDto: CreateCarDTO) {
+    createCarDto.plate = createCarDto.plate.toUpperCase();
     const existingCar = await this.prisma.car.findFirst({
       where: {
         plate: createCarDto.plate,
@@ -63,7 +64,7 @@ export class CarsService {
   }
 
   async update(id: number, updateCarDto: UpdateCarDTO) {
-    const presentData = await this.existsCar(id);
+    await this.existsCar(id);
     const { brand, model, plate, items, km, year, daily_rate } = updateCarDto;
     //const data: Record<string, any> = {};
     const data: UpdateCarDTO = {};
@@ -73,7 +74,7 @@ export class CarsService {
 
     if (brand) data.brand = brand;
     if (model) data.model = model;
-    if (plate) data.plate = plate;
+    if (plate) data.plate = plate.toUpperCase();
     if (items) data.items = items;
     if (km) data.km = km;
     if (year) data.year = year;

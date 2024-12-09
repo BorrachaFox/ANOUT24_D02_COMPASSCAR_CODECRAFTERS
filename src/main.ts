@@ -10,6 +10,10 @@ async function bootstrap() {
     .setTitle('Compass CAR')
     .setDescription('API Node para um sistema de locação de carros.')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

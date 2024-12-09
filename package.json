@@ -1,6 +1,9 @@
 {
   "name": "compasscar",
   "version": "0.0.1",
+  "prisma": {
+  "seed": "npx ts-node -r tsconfig-paths/register prisma/seed.ts"
+},
   "description": "",
   "author": "",
   "private": true,
@@ -18,7 +21,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "npx ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -53,7 +57,6 @@
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "husky": "^9.1.7",
     "jest": "^29.5.0",
     "prettier": "^3.0.0",
     "prisma": "^6.0.1",
