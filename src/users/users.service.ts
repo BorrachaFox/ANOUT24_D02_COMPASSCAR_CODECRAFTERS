@@ -1,5 +1,4 @@
 import {
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,11 +8,9 @@ import {
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
-
 import * as bcrypt from 'bcrypt';
 import { Status } from '@prisma/client';
 import { ValidateUsers } from 'src/users/utils/validate-users.utils';
-import { take } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -81,7 +78,9 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDTO) {
     await this.existsUser(id);
-    await this.userEmailVerification(updateUserDto.email);
+    if (updateUserDto.email) {
+      await this.userEmailVerification(updateUserDto.email);
+    }
 
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(
@@ -95,7 +94,6 @@ export class UsersService {
         where: { id },
         data: { ...updateUserDto },
       });
-      return HttpStatus.GONE;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -103,13 +101,16 @@ export class UsersService {
 
   async remove(id: number) {
     await this.existsUser(id);
-    await this.prisma.user.update({
-      where: { id },
-      data: {
-        status: Status.INACTIVE,
-      },
-    });
-    return HttpStatus.NO_CONTENT;
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: {
+          status: Status.INACTIVE,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async existsUser(id: number) {
