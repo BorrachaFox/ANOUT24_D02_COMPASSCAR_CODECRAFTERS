@@ -202,9 +202,9 @@ export class OrdersService {
     return order;
   }
 
-  async validateCarOrder(id: number){
+  async validateCarOrder(id: number) {
     const validateCar = await this.carService.existsCar(id);
-    if( validateCar.status != Status.ACTIVE ){
+    if (validateCar.status != Status.ACTIVE) {
       throw new ConflictException('Car is not active');
     }
     return validateCar;
