@@ -1,6 +1,5 @@
 import {
-  BadRequestException,
-  ConflictException, HttpStatus,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -98,7 +97,7 @@ export class UsersService {
       });
       return HttpStatus.GONE;
     } catch (error) {
-      throw Error;
+      throw new InternalServerErrorException(error);
     }
   }
 
