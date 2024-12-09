@@ -1,12 +1,11 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiResponse,
-  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiUnauthorizedResponse,
   ApiConflictResponse,
-  ApiOkResponse,
 } from '@nestjs/swagger';
+import { GetAllGenericResponses, resErrServer } from './responses.utils';
 
 export function PostResponses() {
   return applyDecorators(
@@ -20,26 +19,7 @@ export function PostResponses() {
 
 export function GetAllResponses() {
   return applyDecorators(
-    ApiResponse({
-      status: 404,
-      description: 'Not Found: No users matched the filters provided.',
-      examples: {
-        noClientFound: {
-          summary: 'No users found',
-          value: {
-            statusCode: 404,
-            message: 'No users found',
-          },
-        },
-        filterNotFound: {
-          summary: 'User not found with this filter.',
-          value: {
-            statusCode: 404,
-            message: 'User not found with this filter.',
-          },
-        },
-      },
-    }),
+    GetAllGenericResponses('users', 'Users'),
     resErrServer,
   );
 }
@@ -60,11 +40,7 @@ export function PatchResponses() {
 }
 
 export function DeleteResponses() {
-  return applyDecorators(
-    userNotFound,
-    resErrServer,
-    ApiOkResponse({ description: 'User desactivated successfully.' }),
-  );
+  return applyDecorators(userNotFound, resErrServer);
 }
 
 // Reutilizáveis
@@ -76,22 +52,20 @@ const responsesCreateAndUpdate = ApiResponse({
     weakPassword: {
       summary: 'Password',
       value: {
+        message: ['password is not strong enough'],
+        error: 'Bad Request',
         statusCode: 400,
-        message: 'password is not strong enough',
       },
     },
     invalidEmail: {
       summary: 'Email',
       value: {
+        message: ['email must be an email'],
+        error: 'Bad Request',
         statusCode: 400,
-        message: 'email must be an email',
       },
     },
   },
-});
-
-const resErrServer = ApiInternalServerErrorResponse({
-  description: 'Internal server error.',
 });
 
 const userNotFound = ApiNotFoundResponse({
