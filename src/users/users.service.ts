@@ -1,8 +1,9 @@
 import {
-  BadRequestException,
-  ConflictException,
+  HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { CreateUserDTO } from './dto/create-user.dto';
@@ -10,92 +11,83 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 import * as bcrypt from 'bcrypt';
+import { Status } from '@prisma/client';
+import { ValidateUsers } from 'src/users/utils/validate-users.utils';
+import { take } from 'rxjs';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDTO) {
-    const salt = await bcrypt.genSalt(10);
-    const newPassword = await bcrypt.hash(createUserDto.password, salt);
-
-    return this.prisma.user.create({
-      data: { ...createUserDto, password: newPassword },
-    });
+    await this.userEmailVerification(createUserDto.email);
+    const password = await bcrypt.hash(
+      createUserDto.password,
+      await bcrypt.genSalt(10),
+    );
+    try {
+      return this.prisma.user.create({ data: { ...createUserDto, password } });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
-  async findAll(email: string, name: string, status: string) {
-    const where: any = {};
-    if (email) {
-      where.email = {
-        contains: email,
-        mode: 'insensitive',
-      };
+  async findAll(query) {
+    const usersNoFilter = await this.prisma.user.findMany({
+      take: 1,
+    });
+    ValidateUsers.userFoundAll(usersNoFilter);
+
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    let limit = parseInt(query.limit, 10) || 5;
+
+    if (limit <= 0) {
+      limit = 5;
+    } else if (limit > 10) {
+      limit = 10;
     }
 
-    if (name) {
-      where.name = {
-        contains: name,
-        mode: 'insensitive',
-      };
-    }
+    const take: number = Number(limit);
+    const skip: number = Number((page - 1) * limit);
+    const { email, name, status } = query;
+    const where: Record<string, any> = {};
 
-    if (status) {
-      where.status = status;
-    }
+    if (email) where.email = { contains: email, mode: 'insensitive' };
+    if (name) where.name = { contains: name, mode: 'insensitive' };
+    if (status) where.status = status;
 
     try {
-      const users = await this.prisma.user.findMany({
+      const usersWithFilters = await this.prisma.user.findMany({
         where,
+        skip,
+        take,
       });
-
-      if (users.length === 0) {
-        throw new NotFoundException('No users found  ');
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const usersWithoutPassword = users.map(({ password, ...user }) => user);
-
-      return usersWithoutPassword;
-    } catch {
-      throw new NotFoundException('user not found with this filter');
+      ValidateUsers.userFiltersFounded(usersWithFilters);
+      return usersWithFilters.map(({ password, ...user }) => user);
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
   }
 
   async findOne(id: number) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found.');
-    }
+    const user = await this.existsUser(id);
     const { password, ...usersWithoutPassword } = user;
-
-    return usersWithoutPassword;
-    // return user;
+    try {
+      return usersWithoutPassword;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async update(id: number, updateUserDto: UpdateUserDTO) {
-    const validateUser = await this.prisma.user.findFirst({ where: { id } });
-    if (!validateUser) {
-      throw new NotFoundException('User not found.');
-    }
+    await this.existsUser(id);
+    await this.userEmailVerification(updateUserDto.email);
 
-    const { email } = updateUserDto;
-    const validateEmail = await this.prisma.user.findFirst({
-      where: {
-        email,
-        status: 'ACTIVE',
-      },
-    });
-    if (validateEmail) {
-      throw new ConflictException('Email already in use by an active user.');
-    }
-
-    let { password } = updateUserDto;
-    if (password) {
-      const saltRounds = 10;
-      password = await bcrypt.hash(password, saltRounds);
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        await bcrypt.genSalt(10),
+      );
     }
 
     try {
@@ -103,24 +95,40 @@ export class UsersService {
         where: { id },
         data: { ...updateUserDto },
       });
-    } catch (_err) {
-      throw new BadRequestException();
+      return HttpStatus.GONE;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
   }
 
   async remove(id: number) {
-    let user = await this.prisma.user.findUnique({
+    await this.existsUser(id);
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        status: Status.INACTIVE,
+      },
+    });
+    return HttpStatus.NO_CONTENT;
+  }
+
+  async existsUser(id: number) {
+    const user = await this.prisma.user.findFirst({
       where: { id },
     });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    user = await this.prisma.user.update({
-      where: { id },
-      data: {
-        status: 'INACTIVE',
-      },
+    return user;
+  }
+
+  async userEmailVerification(email: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { email, status: Status.ACTIVE },
     });
-    return `User ${id} deactivated successfully.`;
+    if (user) {
+      throw new UnauthorizedException('email is already used');
+    }
+    return user;
   }
 }

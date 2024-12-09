@@ -1,15 +1,18 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
+  Delete,
   Get,
   Param,
-  Patch,
   ParseIntPipe,
-  Delete,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
-import { OrdersService } from './orders-service';
 import { CreateOrdersDto } from './dto/create-order.dto';
+import { OrdersService } from './orders-service';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 
 @Controller('orders')
 export class OrdersController {
@@ -26,6 +29,14 @@ export class OrdersController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.ordersService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateOrderDto: UpdateOrderDto,
+  ) {
+    return this.ordersService.update(id, updateOrderDto);
   }
 
   @Delete(':id')
