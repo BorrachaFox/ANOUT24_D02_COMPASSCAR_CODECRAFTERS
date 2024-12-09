@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 
 export class ValidateClient {
   static validateAge(age: number): boolean {
@@ -10,9 +14,7 @@ export class ValidateClient {
 
   static emailUsing(clientEmail: string, RequestEmail: string): boolean {
     if (clientEmail === RequestEmail) {
-      throw new ConflictException(
-        'Email already in use by an active client.',
-      );
+      throw new ConflictException('Email already in use by an active client.');
     }
     return true;
   }
