@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
-import { CarNotFoundGuard } from '../guards/cars/car-not-found.guard';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';
 import { UpdateCarDTO } from './dto/update-car.dto';
@@ -34,13 +33,12 @@ export class CarsController {
   }
 
   @Get(':id')
-  @UseGuards(CarNotFoundGuard)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.carsService.findOne(id);
   }
 
   @Patch(':id')
-  @UseGuards(CarNotFoundGuard, CarPlateFormatGuard)
+  @UseGuards(CarPlateFormatGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDTO,
@@ -49,7 +47,7 @@ export class CarsController {
   }
 
   @Delete(':id')
-  @UseGuards(CarNotFoundGuard)
+  //@UseGuards(CarNotFoundGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.carsService.remove(id);
   }

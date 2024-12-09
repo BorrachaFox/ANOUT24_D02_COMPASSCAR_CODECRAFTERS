@@ -1,15 +1,16 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
+  Delete,
   Get,
   Param,
-  Patch,
   ParseIntPipe,
+  Patch,
+  Post,
 } from '@nestjs/common';
-import { OrdersService } from './orders-service';
-import { CreateOrdersDto } from './dto/create-order-dto';
+import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDTO } from './dto/update-order.dto';
+import { OrdersService } from './orders-service';
 
 @Controller('orders')
 export class OrdersController {
@@ -34,5 +35,10 @@ export class OrdersController {
     @Body() updateOrderDto: UpdateOrderDTO,
   ) {
     return this.ordersService.update(id, updateOrderDto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.remove(id);
   }
 }

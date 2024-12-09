@@ -13,7 +13,6 @@ import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
-import { ClientNotFoundGuard } from 'src/guards/clients/client-not-found.guard';
 
 @UseGuards(IsAuthGuard)
 @Controller('clients')
@@ -34,19 +33,16 @@ export class ClientsController {
     return this.clientsService.findAll(email, name, birthday, cpf);
   }
 
-  @UseGuards(ClientNotFoundGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.clientsService.findOne(+id);
   }
 
-  @UseGuards(ClientNotFoundGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
     return this.clientsService.update(+id, updateClientDto);
   }
 
-  @UseGuards(ClientNotFoundGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.clientsService.remove(+id);
