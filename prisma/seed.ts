@@ -5,7 +5,6 @@ import { OrdersService } from '../src/orders/orders-service';
 import { CarsService } from '../src/cars/cars.service';
 import { BadRequestException, Logger } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import * as bcrypt from 'bcrypt';
 import { CreateClientDto } from '../src/clients/dto/create-client.dto';
 import { CreateCarDTO } from '../src/cars/dto/create-car.dto';
 import { CreateOrdersDto } from '../src/orders/dto/create-order.dto';

@@ -6,11 +6,13 @@ import {
   IsPhoneNumber,
   IsString,
 } from 'class-validator';
+import { validatorCpf } from 'src/Decorators/validationCpf/validate-cpf-decorators';
 
 export class CreateClientDto {
   @IsString()
   name: string;
 
+  @validatorCpf()
   @IsString()
   cpf: string;
 
@@ -25,6 +27,5 @@ export class CreateClientDto {
   @IsPhoneNumber('BR')
   phone: string;
 
-  @IsEmpty()
-  status;
+ 
 }
