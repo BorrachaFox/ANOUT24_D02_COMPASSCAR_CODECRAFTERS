@@ -24,13 +24,8 @@ export class ClientsController {
   }
 
   @Get()
-  async findAll(
-    @Query('name') name?: string,
-    @Query('cpf') cpf?: string,
-    @Query('birthday') birthday?: string,
-    @Query('email') email?: string,
-  ) {
-    return this.clientsService.findAll(email, name, birthday, cpf);
+  async findAll(@Query() query: any) {
+    return this.clientsService.findAll(query);
   }
 
   @Get(':id')
