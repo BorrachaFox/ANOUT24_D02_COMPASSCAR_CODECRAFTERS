@@ -40,7 +40,7 @@ A aplicação foi projetada para ser prática e escalável, usando boas prática
 ### **1. Pré-requisitos**
 Certifique-se de ter instalado:
 - [Node.js](https://nodejs.org/) (versão LTS recomendada)
-- Banco de dados (PostgreSQL)
+- Docker
 - [Postman](https://www.postman.com/) ou outra ferramenta para testar a API
 
 ### **2. Clonar o Repositório**
@@ -59,11 +59,19 @@ Crie um arquivo .env na raiz do projeto com as seguintes variáveis:
 POSTGRES_PASSWORD=
 DATABASE_URL=
 ```
-### **5. Executar as Migrações**
+### **5. Iniciar Bando de Dados via Docker**
+```bash
+docker-compose up -d
+```
+### **6. Executar as Migrações**
 ```bash
 npx prisma generate
 ```
-### **6. Iniciar o Servidor**
+### **6.1. Carregar Seeds para Banco de Dados**
+```bash
+npm run seed
+```
+### **7. Iniciar o Servidor**
 ```bash
 npm run start:dev
 ```
