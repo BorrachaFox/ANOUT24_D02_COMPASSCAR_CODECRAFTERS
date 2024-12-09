@@ -8,7 +8,8 @@ import {
   Query,
   Delete,
   UseGuards,
-  ParseIntPipe, HttpCode,
+  ParseIntPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
