@@ -16,11 +16,12 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDTO) {
-    createUserDto.password = await bcrypt.hash(
-      createUserDto.password,
-      await bcrypt.genSalt(),
-    );
-    return this.prisma.user.create({ data: { ...createUserDto } });
+    const salt = await bcrypt.genSalt(10);
+    const newPassword = await bcrypt.hash(createUserDto.password, salt);
+
+    return this.prisma.user.create({
+      data: { ...createUserDto, password: newPassword },
+    });
   }
 
   async findAll(email: string, name: string, status: string) {
