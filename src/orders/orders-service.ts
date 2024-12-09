@@ -5,13 +5,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, Status } from '@prisma/client';
 import { CarsService } from '../cars/cars.service';
 import { ClientsService } from '../clients/clients.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { SaveOrderDto } from './dto/save-order.dto';
-import { UpdateOrderDTO } from './dto/update-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -63,11 +63,8 @@ export class OrdersService {
     }
   }
 
-  async update(id: number, updateOrderDto: UpdateOrderDTO) {
-    const validateOrder = await this.prisma.order.findFirst({ where: { id } });
-    if (!validateOrder) {
-      throw new NotFoundException('Order not found.');
-    }
+  async update(id: number, updateOrderDto: UpdateOrderDto) {
+    const validateOrder = await this.existsOrder(id);
     let uf, city, rentalFee;
     if (updateOrderDto.cep) {
       const cepData = await this.fetchViaAPI(updateOrderDto.cep);
@@ -76,21 +73,14 @@ export class OrdersService {
       rentalFee = cepData.rentalFee;
     }
     let validateCar = null;
+
     if (updateOrderDto.car_id) {
-      validateCar = await this.prisma.car.findFirst({
-        where: {
-          id: updateOrderDto.car_id,
-          status: 'ACTIVE',
-        },
-      });
-      if (!validateCar) {
-        throw new ConflictException('Car is not active');
-      }
+      await this.validateCarOrder(updateOrderDto.car_id);
       const existingOrderWithCar = await this.prisma.order.findFirst({
         where: {
           car_id: updateOrderDto.car_id,
           status: {
-            not: 'CLOSED',
+            not: OrderStatus.CLOSED,
           },
           NOT: {
             id: id,
@@ -210,5 +200,13 @@ export class OrdersService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
     return order;
+  }
+
+  async validateCarOrder(id: number){
+    const validateCar = await this.carService.existsCar(id);
+    if( validateCar.status != Status.ACTIVE ){
+      throw new ConflictException('Car is not active');
+    }
+    return validateCar;
   }
 }

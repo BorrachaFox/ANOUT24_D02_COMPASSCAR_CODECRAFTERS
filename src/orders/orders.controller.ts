@@ -6,12 +6,14 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
+  Post, UseGuards,
 } from '@nestjs/common';
 import { CreateOrdersDto } from './dto/create-order.dto';
-import { UpdateOrderDTO } from './dto/update-order.dto';
 import { OrdersService } from './orders-service';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 
+@UseGuards(IsAuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -32,7 +34,7 @@ export class OrdersController {
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateOrderDto: UpdateOrderDTO,
+    @Body() updateOrderDto: UpdateOrderDto,
   ) {
     return this.ordersService.update(id, updateOrderDto);
   }
