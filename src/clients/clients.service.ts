@@ -61,11 +61,11 @@ export class ClientsService {
 
     const take: number = Number(limit);
     const skip: number = Number((page - 1) * limit);
-    
+
     const where: Record<string, any> = {};
     const { email, name, cpf, status } = query;
-    if (email) where.email = { contains: email, mode: 'insensitive'};
-    if (name) where.name = { contains: name, mode: 'insensitive'};
+    if (email) where.email = { contains: email, mode: 'insensitive' };
+    if (name) where.name = { contains: name, mode: 'insensitive' };
     if (cpf) where.cpf = { contains: cpf };
     if (status) where.status = status;
 
