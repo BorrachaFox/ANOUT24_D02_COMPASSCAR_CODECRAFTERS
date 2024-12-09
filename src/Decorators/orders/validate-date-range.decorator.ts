@@ -1,7 +1,11 @@
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidationArguments,
+} from 'class-validator';
 
 export function ValidateDateRange(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'validateDateRange',
       target: object.constructor,
@@ -11,7 +15,11 @@ export function ValidateDateRange(validationOptions?: ValidationOptions) {
         validate(value: any, args: ValidationArguments) {
           const startDate = (args.object as any).start_date;
           const finalDate = (args.object as any).final_date;
-          if (startDate && finalDate && new Date(finalDate) < new Date(startDate)) {
+          if (
+            startDate &&
+            finalDate &&
+            new Date(finalDate) < new Date(startDate)
+          ) {
             return false;
           }
 
