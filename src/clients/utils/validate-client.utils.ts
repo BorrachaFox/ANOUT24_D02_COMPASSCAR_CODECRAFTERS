@@ -31,4 +31,11 @@ export class ValidateClient {
     }
     return true;
   }
+
+  static clientFoundedAll(clientNoFilter):boolean {
+    if( clientNoFilter.length === 0 ) {
+      throw new NotFoundException('Clients not found in Database');
+    };
+    return true;
+  }
 }

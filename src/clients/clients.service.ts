@@ -10,6 +10,7 @@ import { UpdateClientDto } from './dto/update-client.dto';
 import { ValidateClient } from 'src/clients/utils/validate-client.utils';
 import { CPFDocumentUtils } from 'src/clients/utils/cpf-formater-client.utils';
 import { OrderStatus, Status } from '@prisma/client';
+import { query } from 'express';
 
 @Injectable()
 export class ClientsService {
@@ -46,34 +47,33 @@ export class ClientsService {
     }
   }
 
-  async findAll(email: string, name: string, status: string, cpf: string) {
-    const where: any = {};
-    if (email) {
-      where.email = {
-        contains: email,
-        mode: 'insensitive',
-      };
+  async findAll(query) {
+    const clientNoFilter = await this.prisma.client.findMany({ take: 1 });
+    ValidateClient.clientFoundedAll(clientNoFilter);
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    let limit = parseInt(query.limit, 10) || 5;
+
+    if (limit <= 0) {
+      limit = 5;
+    } else if (limit > 10) {
+      limit = 10;
     }
 
-    if (name) {
-      where.name = {
-        contains: name,
-        mode: 'insensitive',
-      };
-    }
-    if (cpf) {
-      where.cpf = {
-        contains: cpf,
-      };
-    }
-
-    if (status) {
-      where.status = status;
-    }
+    const take: number = Number(limit);
+    const skip: number = Number((page - 1) * limit);
+    
+    const where: Record<string, any> = {};
+    const { email, name, cpf, status } = query;
+    if (email) where.email = { contains: email, mode: 'insensitive'};
+    if (name) where.name = { contains: name, mode: 'insensitive'};
+    if (cpf) where.cpf = { contains: cpf };
+    if (status) where.status = status;
 
     try {
       const client = await this.prisma.client.findMany({
         where,
+        skip,
+        take,
       });
       ValidateClient.clientFiltersFounded(client);
 
