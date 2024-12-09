@@ -2,7 +2,6 @@ import { Type } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
-  IsEmpty,
   IsPhoneNumber,
   IsString,
 } from 'class-validator';
@@ -24,7 +23,4 @@ export class CreateClientDto {
   @IsString()
   @IsPhoneNumber('BR')
   phone: string;
-
-  @IsEmpty()
-  status;
 }
