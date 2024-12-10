@@ -101,6 +101,7 @@ export class ClientsService {
     const clientFound = await this.prisma.client.findFirst({
       where: {
         OR: [{ email: updateClientDto.email }, { cpf: updateClientDto.cpf }],
+        status: Status.ACTIVE,
       },
     });
     if (clientFound) {
@@ -159,7 +160,7 @@ export class ClientsService {
       where: { id },
     });
     if (!client) {
-      throw new NotFoundException('Client does not exist');
+      throw new NotFoundException('Client does not exist.');
     }
   }
 

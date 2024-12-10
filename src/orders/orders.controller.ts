@@ -12,8 +12,10 @@ import {
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrdersService } from './orders.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
-//@UseGuards(IsAuthGuard)
+@ApiBearerAuth('access-token')
+@UseGuards(IsAuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

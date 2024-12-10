@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { SaveOrderDto } from './save-order.dto';
 import { $Enums, OrderStatus } from '@prisma/client';
 import { IsIn } from 'class-validator';

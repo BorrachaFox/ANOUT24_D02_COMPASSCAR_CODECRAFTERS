@@ -92,7 +92,6 @@ export class CarsService {
       where: { id },
       data: {
         status: Status.INACTIVE,
-        update_at: new Date(),
       },
     });
   }
@@ -102,7 +101,7 @@ export class CarsService {
       where: { id },
     });
     if (!existingCar) {
-      throw new BadRequestException('Car not found');
+      throw new BadRequestException('Car not found.');
     }
     return existingCar;
   }

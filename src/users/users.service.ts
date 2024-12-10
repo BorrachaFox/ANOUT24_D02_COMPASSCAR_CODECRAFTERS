@@ -118,7 +118,7 @@ export class UsersService {
       where: { id },
     });
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User not found.`);
     }
     return user;
   }
@@ -128,7 +128,7 @@ export class UsersService {
       where: { email, status: Status.ACTIVE },
     });
     if (user) {
-      throw new UnauthorizedException('email is already used');
+      throw new UnauthorizedException('Email is already used.');
     }
     return user;
   }
