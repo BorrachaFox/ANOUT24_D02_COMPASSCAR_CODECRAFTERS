@@ -11,10 +11,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { IsAuthGuard } from '../guards/auth/isAuth.guards';
-import { CarsService } from './cars.service';
-import { CreateCarDTO } from './dto/create-car.dto';
-import { UpdateCarDTO } from './dto/update-car.dto';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Status } from '@prisma/client';
 import {
   DeleteResponses,
   GetAllResponses,
@@ -22,8 +20,10 @@ import {
   PatchResponses,
   PostResponses,
 } from 'src/swagger/swagger-cars';
-import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { Status } from '@prisma/client';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
+import { CarsService } from './cars.service';
+import { CreateCarDTO } from './dto/create-car.dto';
+import { UpdateCarDTO } from './dto/update-car.dto';
 
 @ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)

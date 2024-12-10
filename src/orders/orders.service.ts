@@ -22,17 +22,21 @@ export class OrdersService {
   ) {}
 
   async create(createOrdersDto: CreateOrdersDto) {
-    await this.clientService.existsClient(createOrdersDto.client_id);
     const cepFormatado = createOrdersDto.cep.replace(/\D/g, '');
     if (cepFormatado.length !== 8) {
       throw new BadRequestException(
         'Invalid CEP. The CEP must have 8 numbers.',
       );
     }
+    await this.validateClientOrder(createOrdersDto.client_id);
 
-    const car = await this.carService.existsCar(createOrdersDto.car_id);
+    const car = await this.validateCarOrder(createOrdersDto.car_id);
     const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
 
+    await this.validateClientAndCarOrder(
+      createOrdersDto.client_id,
+      createOrdersDto.car_id,
+    );
     const diffInMs =
       new Date(createOrdersDto.final_date).valueOf() -
       new Date(createOrdersDto.start_date).valueOf();
@@ -47,8 +51,11 @@ export class OrdersService {
       rental_fee: rental_fee,
       total_rental_price: car.daily_rate * diffInDays + rental_fee,
     };
-
-    return this.prisma.order.create({ data: orderCreating });
+    try {
+      return this.prisma.order.create({ data: orderCreating });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async findAll() {
@@ -152,33 +159,37 @@ export class OrdersService {
       );
       lateFee = 2 * validateCar.daily_rate * overdueDays;
     }
-    return this.prisma.order.update({
-      where: { id },
-      data: {
-        ...updateOrderDto,
-        status: status,
-        uf: uf || validateOrder.uf,
-        city: city || validateOrder.city,
-        rental_fee: parseFloat(rentalFee || validateOrder.rental_fee),
-        total_rental_price: totalRentalPrice,
-        update_at: new Date(),
-        late_fee: lateFee,
-        order_closing_time:
-          updateOrderDto.status === 'CLOSED'
-            ? new Date()
-            : validateOrder.order_closing_time,
-      },
-    });
+    try {
+      return this.prisma.order.update({
+        where: { id },
+        data: {
+          ...updateOrderDto,
+          status: status,
+          uf: uf || validateOrder.uf,
+          city: city || validateOrder.city,
+          rental_fee: parseFloat(rentalFee || validateOrder.rental_fee),
+          total_rental_price: totalRentalPrice,
+          update_at: new Date(),
+          late_fee: lateFee,
+          order_closing_time:
+            updateOrderDto.status === 'CLOSED'
+              ? new Date()
+              : validateOrder.order_closing_time,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async remove(id: number) {
     const order = await this.existsOrder(id);
-    if (order.status != OrderStatus.OPEN) {
+    if (order.status !== OrderStatus.OPEN) {
       throw new ConflictException('Order cannot be canceled');
     }
-    this.prisma.order.update({
+    await this.prisma.order.update({
       where: { id },
-      data: { status: OrderStatus.CANCELED, update_at: new Date() },
+      data: { status: OrderStatus.CANCELED },
     });
   }
 
@@ -194,7 +205,7 @@ export class OrdersService {
       where: { id },
     });
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+      throw new NotFoundException(`Order not found`);
     }
     return order;
   }
@@ -205,5 +216,33 @@ export class OrdersService {
       throw new ConflictException('Car is not active');
     }
     return validateCar;
+  }
+
+  async validateClientOrder(id: number) {
+    const validateClient = await this.clientService.existsClient(id);
+    if (validateClient.status != Status.ACTIVE) {
+      throw new ConflictException('Client is not active');
+    }
+  }
+
+  async validateClientAndCarOrder(client_id, car_id) {
+    const order = await this.prisma.order.findFirst({
+      where: {
+        OR: [
+          {
+            client_id,
+            status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] },
+          },
+          {
+            car_id,
+            status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] },
+          },
+        ],
+      },
+    });
+    if (order) {
+      throw new BadRequestException(`Client or Car using in another order`);
+    }
+    return order;
   }
 }
