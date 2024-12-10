@@ -10,7 +10,7 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { Status } from '@prisma/client';
-import { ValidateUsers } from 'src/users/utils/validate-users.utils';
+import { ValidateUsers } from '../users/utils/validate-users.utils';
 
 @Injectable()
 export class UsersService {

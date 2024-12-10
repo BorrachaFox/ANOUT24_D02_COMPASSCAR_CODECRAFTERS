@@ -13,7 +13,7 @@ import {
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 
 @UseGuards(IsAuthGuard)
 @Controller('clients')

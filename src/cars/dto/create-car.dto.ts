@@ -12,7 +12,7 @@ import {
   Min,
 } from 'class-validator';
 import { IsArrayUnique } from '../../Decorators/cars/car-items-unique.decorator';
-import { IsCarPlate } from 'src/Decorators/cars/car-plate-format.decorator';
+import { IsCarPlate } from '../../Decorators/cars/car-plate-format.decorator';
 
 export class CreateCarDTO {
   @IsString()
