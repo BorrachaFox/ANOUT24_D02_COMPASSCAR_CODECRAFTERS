@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';
 import { UpdateCarDTO } from './dto/update-car.dto';
@@ -56,7 +56,6 @@ export class CarsController {
 
   @PatchResponses()
   @Patch(':id')
-  @HttpCode(204)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDTO,

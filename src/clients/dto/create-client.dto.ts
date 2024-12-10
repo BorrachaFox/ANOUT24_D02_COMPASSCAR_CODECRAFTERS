@@ -1,9 +1,16 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsEmail, IsPhoneNumber, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsEmail,
+  IsPhoneNumber,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateClientDto {
   @ApiProperty({ description: "Add the customer's full name." })
+  @MinLength(2)
   @IsString()
   name: string;
 

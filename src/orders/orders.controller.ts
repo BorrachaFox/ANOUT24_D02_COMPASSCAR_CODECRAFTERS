@@ -10,13 +10,14 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CreateOrdersDto } from './dto/create-order.dto';
-import { OrdersService } from './orders-service';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { IsAuthGuard } from '../guards/auth/isAuth.guards';
+import { CreateOrdersDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import { OrdersService } from './orders.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth('access-token')
+@UseGuards(IsAuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -35,7 +36,6 @@ export class OrdersController {
   }
 
   @Patch(':id')
-  @HttpCode(204)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateOrderDto: UpdateOrderDto,

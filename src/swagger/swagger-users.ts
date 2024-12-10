@@ -49,6 +49,14 @@ const responsesCreateAndUpdate = ApiResponse({
   status: 400,
   description: 'Bad Request: Invalid or missing input data.',
   examples: {
+    invalidName: {
+      summary: 'Invalid name',
+      value: {
+        message: ['name must be longer than or equal to 2 characters'],
+        error: 'Bad Request',
+        statusCode: 400,
+      },
+    },
     weakPassword: {
       summary: 'Password',
       value: {

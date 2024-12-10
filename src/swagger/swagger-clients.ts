@@ -74,6 +74,14 @@ const responsesCreateAndUpdate400 = ApiResponse({
   status: 400,
   description: 'Validation errors for the provided data.',
   examples: {
+    invalidName: {
+      summary: 'Invalid name',
+      value: {
+        message: ['name must be longer than or equal to 2 characters'],
+        error: 'Bad Request',
+        statusCode: 400,
+      },
+    },
     invalidEmail: {
       summary: 'Invalid email',
       value: {

@@ -1,20 +1,20 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
-  Query,
+  Controller,
   Delete,
-  UseGuards,
-  ParseIntPipe,
+  Get,
   HttpCode,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
+import { UsersService } from './users.service';
 import {
   DeleteResponses,
   GetAllResponses,
@@ -55,7 +55,6 @@ export class UsersController {
 
   @PatchResponses()
   @Patch(':id')
-  @HttpCode(204)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDTO,

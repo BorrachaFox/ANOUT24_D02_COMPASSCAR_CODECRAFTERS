@@ -152,7 +152,7 @@ export class OrdersService {
       );
       lateFee = 2 * validateCar.daily_rate * overdueDays;
     }
-    await this.prisma.order.update({
+    return this.prisma.order.update({
       where: { id },
       data: {
         ...updateOrderDto,
