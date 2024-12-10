@@ -1,56 +1,72 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
   Param,
-  Query,
-  Delete, 
-  UseGuards, 
   ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { UserEmailActiveGuard } from '../guards/user/user-email-active.guard';
-import { UserNotFoundGuard } from '../guards/user/user-not-found.guard';
+import { UsersService } from './users.service';
+import {
+  DeleteResponses,
+  GetAllResponses,
+  GetOneResponses,
+  PatchResponses,
+  PostResponses,
+} from '../swagger/swagger-users';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Status } from '@prisma/client';
 
+@UseGuards(IsAuthGuard)
+@ApiBearerAuth('access-token')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @PostResponses()
   @Post()
-  @UseGuards(UserEmailActiveGuard)
   create(@Body() createUserDto: CreateUserDTO) {
     return this.usersService.create(createUserDto);
   }
 
+  @GetAllResponses()
   @Get()
-  async findAll(
-    @Query('email') email?: string,
-    @Query('name') name?: string,
-    @Query('status') status?: string,
-  ) {
-    return this.usersService.findAll(email, name, status);
+  @ApiQuery({ name: 'page', required: false, type: String })
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'email', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: Status })
+  async findAll(@Query() query: any) {
+    return this.usersService.findAll(query);
   }
 
+  @GetOneResponses()
   @Get(':id')
-  @UseGuards(UserNotFoundGuard)
-  async findOne(@Param('id' ,ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findOne(id);
     return user;
   }
 
+  @PatchResponses()
   @Patch(':id')
-  @UseGuards(UserEmailActiveGuard)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDTO) {
-    return this.usersService.update(+id, updateUserDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDTO,
+  ) {
+    return this.usersService.update(id, updateUserDto);
   }
 
+  @DeleteResponses()
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const userId = +id;
-    return await this.usersService.remove(userId);
+  @HttpCode(204)
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.usersService.remove(id);
   }
 }

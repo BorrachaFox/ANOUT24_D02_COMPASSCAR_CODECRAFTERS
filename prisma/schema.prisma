@@ -10,7 +10,13 @@ datasource db {
 enum Status {
   ACTIVE
   INACTIVE
-  PENDING
+}
+
+enum OrderStatus {
+  OPEN
+  CANCELED
+  APPROVED
+  CLOSED
 }
 
 model User {
@@ -34,7 +40,7 @@ model Client {
   created_at DateTime @default(now())
   update_at  DateTime @default(now()) @updatedAt
 
-  order Order[]
+  orders Order[]
 }
 
 model Car {
@@ -44,6 +50,7 @@ model Car {
   plate      String
   year       Int
   km         Float
+  daily_rate Float
   status     Status   @default(ACTIVE)
   created_at DateTime @default(now())
   update_at  DateTime @default(now()) @updatedAt
@@ -53,22 +60,22 @@ model Car {
 }
 
 model Order {
-  id                 Int      @id @default(autoincrement())
+  id                 Int         @id @default(autoincrement())
   client_id          Int
   car_id             Int
   start_date         DateTime
   final_date         DateTime
   cep                String
-  uf                 String
-  city               String
-  rental_fee         Float
-  total_rental_price Float
-  order_closing_time DateTime
-  late_fee           Float
-  status             Status   @default(PENDING)
-  created_at         DateTime @default(now())
-  update_at          DateTime @default(now()) @updatedAt
+  uf                 String?
+  city               String?
+  rental_fee         Float?
+  total_rental_price Float?
+  order_closing_time DateTime?
+  late_fee           Float?
+  status             OrderStatus @default(OPEN)
+  created_at         DateTime    @default(now())
+  update_at          DateTime    @default(now()) @updatedAt
 
-  client Client @relation(fields: [client_id], references: [id])
-  car    Car    @relation(fields: [car_id], references: [id])
+  client Client @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  car    Car    @relation(fields: [car_id], references: [id], onDelete: Cascade)
 }
