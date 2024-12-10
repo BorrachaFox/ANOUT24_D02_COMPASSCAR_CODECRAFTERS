@@ -19,7 +19,7 @@ import {
   GetOneResponses,
   PatchResponses,
   PostResponses,
-} from 'src/swagger/swagger-cars';
+} from '../swagger/swagger-cars';
 import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';

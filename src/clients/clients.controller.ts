@@ -20,7 +20,7 @@ import {
   GetOneResponses,
   PatchResponses,
   DeleteResponses,
-} from 'src/swagger/swagger-clients';
+} from '../swagger/swagger-clients';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Status } from '@prisma/client';
 

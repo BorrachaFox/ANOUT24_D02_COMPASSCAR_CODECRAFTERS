@@ -35,7 +35,7 @@ describe('OrdersController (e2e)', () => {
   const testCar = {
     brand: 'test',
     model: 'test',
-    plate: 'TST-9J98',
+    plate: 'TST-0J08',
     year: 2024,
     km: 5841,
     daily_rate: 230,
@@ -71,19 +71,23 @@ describe('OrdersController (e2e)', () => {
     testOrder.client_id = (await clientsController.create(testClient)).id;
     testOrder.car_id = (await carsController.create(testCar)).id;
 
-    await prisma.order.deleteMany();
-    await prisma.car.deleteMany();
-    await prisma.client.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.client.deleteMany({ where: { cpf: testClient.cpf } });
+    await prisma.car.deleteMany({ where: { plate: testCar.plate } });
+    await prisma.order.deleteMany({
+      where: { client_id: testOrder.client_id },
+    });
 
     await app.init();
   });
 
   afterAll(async () => {
-    await prisma.order.deleteMany();
-    await prisma.car.deleteMany();
-    await prisma.client.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.client.deleteMany({ where: { cpf: testClient.cpf } });
+    await prisma.car.deleteMany({ where: { plate: testCar.plate } });
+    await prisma.order.deleteMany({
+      where: { client_id: testOrder.client_id },
+    });
     await app.close();
   });
 

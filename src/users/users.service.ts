@@ -62,7 +62,7 @@ export class UsersService {
       ValidateUsers.userFiltersFounded(usersWithFilters);
       return usersWithFilters.map(({ password, ...user }) => user);
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw error;
     }
   }
 

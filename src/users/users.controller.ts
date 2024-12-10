@@ -21,7 +21,7 @@ import {
   GetOneResponses,
   PatchResponses,
   PostResponses,
-} from 'src/swagger/swagger-users';
+} from '../swagger/swagger-users';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Status } from '@prisma/client';
 
