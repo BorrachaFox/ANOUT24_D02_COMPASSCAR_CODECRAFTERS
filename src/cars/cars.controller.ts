@@ -37,7 +37,6 @@ export class CarsController {
   }
 
   @Patch(':id')
-  @HttpCode(204)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDTO,

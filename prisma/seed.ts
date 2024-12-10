@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { UsersService } from '../src/users/users.service';
 import { ClientsService } from '../src/clients/clients.service';
-import { OrdersService } from '../src/orders/orders-service';
 import { CarsService } from '../src/cars/cars.service';
 import { BadRequestException, Logger } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
@@ -10,6 +9,7 @@ import { CreateClientDto } from '../src/clients/dto/create-client.dto';
 import { CreateCarDTO } from '../src/cars/dto/create-car.dto';
 import { CreateOrdersDto } from '../src/orders/dto/create-order.dto';
 import { CreateUserDTO } from '../src/users/dto/create-user.dto';
+import { OrdersService } from '../src/orders/orders.service';
 
 async function seeds() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -37,8 +37,7 @@ async function seeds() {
       cpf: '12345678900',
       email: 'hilda@email.com',
       phone: '19911012345',
-      birthday: '1990-01-01',
-      status: 'ACTIVE'
+      birthday: '1990-01-01'
     };
     await clientService.create(clientSeed);
     Logger.log('Client seeded successfully.');

@@ -4,13 +4,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { OrderStatus, Status } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { ValidateClient } from './utils/validate-client.utils';
 import { CPFDocumentUtils } from './utils/cpf-formater-client.utils';
-import { OrderStatus, Status } from '@prisma/client';
-import { query } from 'express';
+import { ValidateClient } from './utils/validate-client.utils';
 
 @Injectable()
 export class ClientsService {
@@ -126,7 +125,7 @@ export class ClientsService {
       : { ...updateClientDto };
 
     try {
-      this.prisma.client.update({
+      return this.prisma.client.update({
         where: { id },
         data,
       });

@@ -80,7 +80,7 @@ export class CarsService {
     if (year) data.year = year;
     if (daily_rate) data.daily_rate = daily_rate;
     data.update_at = new Date();
-    await this.prisma.car.update({
+    return this.prisma.car.update({
       where: { id },
       data,
     });
