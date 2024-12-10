@@ -68,18 +68,20 @@ export class OrdersService {
     let uf, city, rentalFee;
     if (updateOrderDto.cep) {
       const cepData = await this.fetchViaAPI(updateOrderDto.cep);
-      console.log(cepData)
+      console.log(cepData);
       if (cepData && cepData.erro === 'true')
-        throw new ConflictException('CEP not found at ViaCEP.')
+        throw new ConflictException('CEP not found at ViaCEP.');
       uf = cepData.uf;
       city = cepData.localidade;
       rentalFee = Number(cepData.gia) / 100;
     }
     const validateCar = await this.prisma.car.findFirst({
-        where: {
-          id: (updateOrderDto.car_id?updateOrderDto.car_id:validateOrder.car_id),
-        },
-      });
+      where: {
+        id: updateOrderDto.car_id
+          ? updateOrderDto.car_id
+          : validateOrder.car_id,
+      },
+    });
 
     if (validateCar.id) {
       await this.validateCarOrder(validateCar.id);
@@ -128,8 +130,7 @@ export class OrdersService {
     let status = validateOrder.status;
     if (updateOrderDto.status) {
       if (updateOrderDto.status === 'CANCELED') {
-        throw new ConflictException(
-          'Status cannot be changed to CANCELED.')
+        throw new ConflictException('Status cannot be changed to CANCELED.');
       }
       if (
         updateOrderDto.status === 'APPROVED' &&
