@@ -23,6 +23,7 @@ export class OrdersService {
 
   async create(createOrdersDto: CreateOrdersDto) {
     await this.clientService.existsClient(createOrdersDto.client_id);
+
     const cepFormatado = createOrdersDto.cep.replace(/\D/g, '');
     if (cepFormatado.length !== 8) {
       throw new BadRequestException(
@@ -31,7 +32,10 @@ export class OrdersService {
     }
 
     const car = await this.carService.existsCar(createOrdersDto.car_id);
-    const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
+    const dataCEP = await this.fetchViaAPI(cepFormatado);
+
+    const startDate = new Date(createOrdersDto.start_date).toISOString();
+    const finalDate = new Date(createOrdersDto.final_date).toISOString();
 
     const diffInMs =
       new Date(createOrdersDto.final_date).valueOf() -
@@ -42,6 +46,8 @@ export class OrdersService {
 
     const orderCreating: SaveOrderDto = {
       ...createOrdersDto,
+      start_date: startDate,
+      final_date: finalDate,
       uf: dataCEP.uf,
       city: dataCEP.localidade,
       rental_fee: rental_fee,
@@ -122,7 +128,6 @@ export class OrdersService {
       : new Date(
           new Date(validateOrder.final_date).toISOString().split('T')[0],
         ).getTime();
-
     const days = Math.ceil((finalDate - startDate) / (1000 * 3600 * 24));
 
     const totalRentalPrice =
