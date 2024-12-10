@@ -93,11 +93,11 @@ describe('UsersController (e2e)', () => {
       .set('Authorization', `Bearer ${jwtToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBeGreaterThan(0);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body.data.length).toBeGreaterThan(0);
 
-    expect(response.body[0]).toHaveProperty('name');
-    expect(response.body[0]).toHaveProperty('email');
+    expect(response.body.data[0]).toHaveProperty('name');
+    expect(response.body.data[0]).toHaveProperty('email');
   });
 
   it('/users/:id (GET) - Should return a user by ID', async () => {

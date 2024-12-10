@@ -88,13 +88,13 @@ describe('CarsController (e2e)', () => {
       .set('Authorization', `Bearer ${jwtToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBeGreaterThan(0);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body.data.length).toBeGreaterThan(0);
 
-    expect(response.body[0]).toHaveProperty('brand');
-    expect(response.body[0]).toHaveProperty('model');
-    expect(response.body[0]).toHaveProperty('plate');
-    expect(response.body[0]).toHaveProperty('year');
+    expect(response.body.data[0]).toHaveProperty('brand');
+    expect(response.body.data[0]).toHaveProperty('model');
+    expect(response.body.data[0]).toHaveProperty('plate');
+    expect(response.body.data[0]).toHaveProperty('year');
   });
 
   it('/cars/:id (GET) - Should return a car by ID', async () => {

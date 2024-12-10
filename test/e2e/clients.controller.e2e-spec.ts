@@ -95,14 +95,14 @@ describe('ClientsController (e2e)', () => {
       .set('Authorization', `Bearer ${jwtToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBeGreaterThan(0);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body.data.length).toBeGreaterThan(0);
 
-    expect(response.body[0]).toHaveProperty('name');
-    expect(response.body[0]).toHaveProperty('cpf');
-    expect(response.body[0]).toHaveProperty('email');
-    expect(response.body[0]).toHaveProperty('birthday');
-    expect(response.body[0]).toHaveProperty('phone');
+    expect(response.body.data[0]).toHaveProperty('name');
+    expect(response.body.data[0]).toHaveProperty('cpf');
+    expect(response.body.data[0]).toHaveProperty('email');
+    expect(response.body.data[0]).toHaveProperty('birthday');
+    expect(response.body.data[0]).toHaveProperty('phone');
   });
 
   it('/clients/:id (GET) - Should return a client by ID', async () => {

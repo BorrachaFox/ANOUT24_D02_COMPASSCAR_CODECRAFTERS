@@ -137,16 +137,16 @@ describe('OrdersController (e2e)', () => {
       .set('Authorization', `Bearer ${jwtToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBeGreaterThan(0);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body.data.length).toBeGreaterThan(0);
 
-    expect(response.body[0]).toHaveProperty('id');
-    expect(response.body[0]).toHaveProperty('client_id');
-    expect(response.body[0]).toHaveProperty('car_id');
-    expect(response.body[0]).toHaveProperty('start_date');
-    expect(response.body[0]).toHaveProperty('final_date');
-    expect(response.body[0]).toHaveProperty('status');
-    expect(response.body[0]).toHaveProperty('total_rental_price');
+    expect(response.body.data[0]).toHaveProperty('id');
+    expect(response.body.data[0]).toHaveProperty('client_id');
+    expect(response.body.data[0]).toHaveProperty('car_id');
+    expect(response.body.data[0]).toHaveProperty('start_date');
+    expect(response.body.data[0]).toHaveProperty('final_date');
+    expect(response.body.data[0]).toHaveProperty('status');
+    expect(response.body.data[0]).toHaveProperty('total_rental_price');
   });
   it('/orders/:id (GET) - Should return an order by ID', async () => {
     const response = await request(app.getHttpServer())
