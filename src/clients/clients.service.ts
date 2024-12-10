@@ -7,8 +7,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { ValidateClient } from 'src/clients/utils/validate-client.utils';
-import { CPFDocumentUtils } from 'src/clients/utils/cpf-formater-client.utils';
+import { ValidateClient } from './utils/validate-client.utils';
+import { CPFDocumentUtils } from './utils/cpf-formater-client.utils';
 import { OrderStatus, Status } from '@prisma/client';
 import { query } from 'express';
 

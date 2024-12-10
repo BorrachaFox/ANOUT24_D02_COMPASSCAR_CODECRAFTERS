@@ -12,8 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 import * as bcrypt from 'bcrypt';
 import { Status } from '@prisma/client';
-import { ValidateUsers } from 'src/users/utils/validate-users.utils';
-import { take } from 'rxjs';
+import { ValidateUsers } from '../users/utils/validate-users.utils';
 
 @Injectable()
 export class UsersService {
