@@ -31,7 +31,15 @@ export class OrdersService {
     await this.validateClientOrder(createOrdersDto.client_id);
 
     const car = await this.validateCarOrder(createOrdersDto.car_id);
-    const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
+    const dataCEP = await this.fetchViaAPI(cepFormatado);
+    if (!dataCEP || dataCEP.erro) {
+      throw new BadRequestException(
+        'Invalid CEP. No data found for the provided CEP.',
+      );
+    }
+
+    const startDate = new Date(createOrdersDto.start_date).toISOString();
+    const finalDate = new Date(createOrdersDto.final_date).toISOString();
 
     await this.validateClientAndCarOrder(
       createOrdersDto.client_id,
@@ -46,6 +54,8 @@ export class OrdersService {
 
     const orderCreating: SaveOrderDto = {
       ...createOrdersDto,
+      start_date: startDate,
+      final_date: finalDate,
       uf: dataCEP.uf,
       city: dataCEP.localidade,
       rental_fee: rental_fee,
@@ -127,7 +137,6 @@ export class OrdersService {
       : new Date(
           new Date(validateOrder.final_date).toISOString().split('T')[0],
         ).getTime();
-
     const days = Math.ceil((finalDate - startDate) / (1000 * 3600 * 24));
 
     const totalRentalPrice =
