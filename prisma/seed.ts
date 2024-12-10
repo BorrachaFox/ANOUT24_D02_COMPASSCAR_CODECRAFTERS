@@ -37,7 +37,6 @@ async function seeds() {
       email: 'hilda@email.com',
       phone: '19911012345',
       birthday: '1990-01-01',
-      status: 'ACTIVE'
     };
     await clientService.create(clientSeed);
     Logger.log('Client seeded successfully.');
