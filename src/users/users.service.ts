@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
+import { Status } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { ValidateUsers } from '../users/utils/validate-users.utils';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
-import { Status } from '@prisma/client';
-import { ValidateUsers } from '../users/utils/validate-users.utils';
 
 @Injectable()
 export class UsersService {
@@ -90,7 +90,7 @@ export class UsersService {
     }
 
     try {
-      await this.prisma.user.update({
+      return this.prisma.user.update({
         where: { id },
         data: { ...updateUserDto },
       });

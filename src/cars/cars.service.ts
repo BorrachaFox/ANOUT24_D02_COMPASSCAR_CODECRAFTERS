@@ -47,10 +47,10 @@ export class CarsService {
     const { brand, km, year, status, daily_rate } = query;
 
     if (brand) where.brand = { contains: brand, mode: 'insensitive' };
-    if (km) where.km = { gte: Number(km) };
+    if (km) where.km = { lte: Number(km) };
     if (year) where.year = { gte: Number(year) };
-    if (status) where.status = { contains: status, mode: 'insensitive' };
-    if (daily_rate) where.daily_rate = { gte: Number(daily_rate) };
+    if (status) where.status = { equals: status };
+    if (daily_rate) where.daily_rate = { lte: Number(daily_rate) };
 
     return this.prisma.car.findMany({
       where,
@@ -80,7 +80,7 @@ export class CarsService {
     if (year) data.year = year;
     if (daily_rate) data.daily_rate = daily_rate;
     data.update_at = new Date();
-    await this.prisma.car.update({
+    return this.prisma.car.update({
       where: { id },
       data,
     });

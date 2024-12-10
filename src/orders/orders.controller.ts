@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { OrdersService } from './orders-service';
+import { OrdersService } from './orders.service';
 
 //@UseGuards(IsAuthGuard)
 @Controller('orders')
@@ -32,7 +32,6 @@ export class OrdersController {
   }
 
   @Patch(':id')
-  @HttpCode(204)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateOrderDto: UpdateOrderDto,
