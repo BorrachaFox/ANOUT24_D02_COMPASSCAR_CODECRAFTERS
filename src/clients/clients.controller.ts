@@ -1,19 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  Query,
+  Get,
   HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 
 @UseGuards(IsAuthGuard)
 @Controller('clients')
@@ -35,7 +35,6 @@ export class ClientsController {
   }
 
   @Patch(':id')
-  @HttpCode(204)
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
     return this.clientsService.update(+id, updateClientDto);
   }

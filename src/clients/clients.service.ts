@@ -4,13 +4,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { OrderStatus, Status } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { ValidateClient } from './utils/validate-client.utils';
 import { CPFDocumentUtils } from './utils/cpf-formater-client.utils';
-import { OrderStatus, Status } from '@prisma/client';
-import { query } from 'express';
+import { ValidateClient } from './utils/validate-client.utils';
 
 @Injectable()
 export class ClientsService {
@@ -43,30 +42,26 @@ export class ClientsService {
     });
   }
 
-  async findAll(email: string, name: string, status: string, cpf: string) {
-    const where: any = {};
-    if (email) {
-      where.email = {
-        contains: email,
-        mode: 'insensitive',
-      };
-    }
+  async findAll(query) {
+    const clientNoFilter = await this.prisma.client.findMany({ take: 1 });
+    ValidateClient.clientFoundedAll(clientNoFilter);
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    let limit = parseInt(query.limit, 10) || 5;
 
-    if (name) {
-      where.name = {
-        contains: name,
-        mode: 'insensitive',
-      };
+    if (limit <= 0) {
+      limit = 5;
+    } else if (limit > 10) {
+      limit = 10;
     }
-    if (cpf) {
-      where.cpf = {
-        contains: cpf,
-      };
-    }
+    const take: number = Number(limit);
+    const skip: number = Number((page - 1) * limit);
 
-    if (status) {
-      where.status = status;
-    }
+    const where: Record<string, any> = {};
+    const { email, name, cpf, status } = query;
+    if (email) where.email = { contains: email, mode: 'insensitive' };
+    if (name) where.name = { contains: name, mode: 'insensitive' };
+    if (cpf) where.cpf = { contains: cpf };
+    if (status) where.status = status;
 
     try {
       const client = await this.prisma.client.findMany({
@@ -125,7 +120,7 @@ export class ClientsService {
       : { ...updateClientDto };
 
     try {
-      this.prisma.client.update({
+      return this.prisma.client.update({
         where: { id },
         data,
       });
@@ -168,7 +163,7 @@ export class ClientsService {
     }
   }
 
-  function CpfValidations(cpf: string): boolean {
+  CpfValidations(cpf: string): boolean {
     const cpfNumbersOnly = cpf.replace(/\D/g, '');
 
     if (cpfNumbersOnly.length !== 11 || /^(\d)\1+$/.test(cpfNumbersOnly)) {
