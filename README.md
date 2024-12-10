@@ -77,6 +77,16 @@ npm run start:dev
 ```
 A API estará disponível em http://localhost:3000.
 ___
+## **Como testar o projeto (e2e)**
+### **1. Rodar script pretest**
+```bash
+npm run pretest:int
+```
+### **1. Rodar script pretest**
+```bash
+npm run test:e2e
+```
+___
 ## **Endpoints**
 Abaixo estão os principais endpoints da API:
 
