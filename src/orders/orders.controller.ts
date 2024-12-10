@@ -16,6 +16,13 @@ import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrdersService } from './orders.service';
+import {
+  DeleteResponses,
+  GetAllResponses,
+  GetOneResponses,
+  PatchResponses,
+  PostResponses,
+} from 'src/swagger/swagger-orders';
 import { OrderStatus } from '@prisma/client';
 
 @ApiBearerAuth('access-token')
@@ -24,11 +31,13 @@ import { OrderStatus } from '@prisma/client';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  @PostResponses()
   @Post()
   create(@Body() createOrdersDto: CreateOrdersDto) {
     return this.ordersService.create(createOrdersDto);
   }
 
+  @GetAllResponses()
   @Get()
   @ApiQuery({ name: 'page', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: OrderStatus })
@@ -37,11 +46,13 @@ export class OrdersController {
     return this.ordersService.findAll(query);
   }
 
+  @GetOneResponses()
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.ordersService.findOne(+id);
   }
 
+  @PatchResponses()
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -50,6 +61,7 @@ export class OrdersController {
     return this.ordersService.update(id, updateOrderDto);
   }
 
+  @DeleteResponses()
   @Delete(':id')
   @HttpCode(204)
   async remove(@Param('id', ParseIntPipe) id: number) {
