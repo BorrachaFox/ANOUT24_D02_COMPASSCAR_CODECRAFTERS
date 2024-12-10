@@ -22,7 +22,8 @@ import {
   PatchResponses,
   PostResponses,
 } from 'src/swagger/swagger-cars';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Status } from '@prisma/client';
 
 @ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)
@@ -38,6 +39,11 @@ export class CarsController {
 
   @GetAllResponses()
   @Get()
+  @ApiQuery({ name: 'brand', required: false, type: String })
+  @ApiQuery({ name: 'km', required: false, type: Number })
+  @ApiQuery({ name: 'year', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: Status })
+  @ApiQuery({ name: 'daily_rate', required: false, type: Number })
   async findAll(@Query() query: any) {
     return this.carsService.findAll(query);
   }

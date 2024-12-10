@@ -22,7 +22,8 @@ import {
   PatchResponses,
   PostResponses,
 } from 'src/swagger/swagger-users';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Status } from '@prisma/client';
 
 @UseGuards(IsAuthGuard)
 @ApiBearerAuth('access-token')
@@ -38,6 +39,9 @@ export class UsersController {
 
   @GetAllResponses()
   @Get()
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'email', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: Status })
   async findAll(@Query() query: any) {
     return this.usersService.findAll(query);
   }

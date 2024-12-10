@@ -21,7 +21,8 @@ import {
   PatchResponses,
   DeleteResponses,
 } from 'src/swagger/swagger-clients';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Status } from '@prisma/client';
 
 @ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)
@@ -37,6 +38,10 @@ export class ClientsController {
 
   @GetAllResponses()
   @Get()
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'email', required: false, type: String })
+  @ApiQuery({ name: 'cpf', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: Status })
   async findAll(@Query() query: any) {
     return this.clientsService.findAll(query);
   }

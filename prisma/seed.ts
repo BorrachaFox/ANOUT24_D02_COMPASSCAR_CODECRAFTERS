@@ -22,7 +22,7 @@ async function seeds() {
     const userSeed: CreateUserDTO = {
       name: 'John Doe',
       email: 'john@doe.com',
-      password: 'abcd123456'
+      password: 'abcd123456',
     };
     await userService.create(userSeed);
     Logger.log('User seeded successfully.');
@@ -38,7 +38,6 @@ async function seeds() {
       email: 'hilda@email.com',
       phone: '19911012345',
       birthday: '1990-01-01',
-      status: 'ACTIVE'
     };
     await clientService.create(clientSeed);
     Logger.log('Client seeded successfully.');
