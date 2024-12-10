@@ -26,6 +26,4 @@ export class CreateClientDto {
   @IsString()
   @IsPhoneNumber('BR')
   phone: string;
-
- 
 }

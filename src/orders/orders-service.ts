@@ -33,6 +33,11 @@ export class OrdersService {
 
     const car = await this.carService.existsCar(createOrdersDto.car_id);
     const dataCEP = await this.fetchViaAPI(cepFormatado);
+    if (!dataCEP || dataCEP.erro) {
+      throw new BadRequestException(
+        'Invalid CEP. No data found for the provided CEP.',
+      );
+    }
 
     const startDate = new Date(createOrdersDto.start_date).toISOString();
     const finalDate = new Date(createOrdersDto.final_date).toISOString();
