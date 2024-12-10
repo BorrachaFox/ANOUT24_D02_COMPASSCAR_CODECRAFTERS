@@ -44,19 +44,18 @@ describe('CarsController (e2e)', () => {
     prisma = module.get<PrismaService>(PrismaService);
 
     const authResponse = await authController.register(testUser);
+
     jwtToken = authResponse.accessToken;
 
-    await prisma.order.deleteMany();
-    await prisma.car.deleteMany();
-    await prisma.client.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.car.deleteMany({ where: { plate: testData.plate } });
 
     await app.init();
   });
 
   afterAll(async () => {
-    await prisma.car.deleteMany();
     await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.car.deleteMany({ where: { plate: testData.plate } });
     await app.close();
   });
 

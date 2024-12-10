@@ -21,7 +21,7 @@ import {
   GetOneResponses,
   PatchResponses,
   PostResponses,
-} from 'src/swagger/swagger-users';
+} from '../swagger/swagger-users';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Status } from '@prisma/client';
 
@@ -39,6 +39,7 @@ export class UsersController {
 
   @GetAllResponses()
   @Get()
+  @ApiQuery({ name: 'page', required: false, type: String })
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'email', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: Status })

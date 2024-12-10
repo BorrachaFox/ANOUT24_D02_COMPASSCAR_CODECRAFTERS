@@ -8,9 +8,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -22,6 +23,7 @@ import {
   PatchResponses,
   PostResponses,
 } from 'src/swagger/swagger-orders';
+import { OrderStatus } from '@prisma/client';
 
 @ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)
@@ -37,8 +39,11 @@ export class OrdersController {
 
   @GetAllResponses()
   @Get()
-  async findAll() {
-    return this.ordersService.findAll();
+  @ApiQuery({ name: 'page', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: OrderStatus })
+  @ApiQuery({ name: 'cpf', required: false, type: String })
+  async findAll(@Query() query: any) {
+    return this.ordersService.findAll(query);
   }
 
   @GetOneResponses()

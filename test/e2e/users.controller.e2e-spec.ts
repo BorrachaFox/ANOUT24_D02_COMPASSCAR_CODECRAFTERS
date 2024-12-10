@@ -16,7 +16,7 @@ describe('UsersController (e2e)', () => {
 
   const testUser = {
     name: 'test user',
-    email: 'user@test.com',
+    email: 'u1548ser@test.com',
     password: 'password123',
   };
 
@@ -42,16 +42,15 @@ describe('UsersController (e2e)', () => {
     const authResponse = await authController.register(testUser);
     jwtToken = authResponse.accessToken;
 
-    await prisma.order.deleteMany();
-    await prisma.car.deleteMany();
-    await prisma.client.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.user.deleteMany({ where: { email: testData.email } });
 
     await app.init();
   });
 
   afterAll(async () => {
     await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.user.deleteMany({ where: { email: testData.email } });
     await app.close();
   });
 

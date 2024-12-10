@@ -19,7 +19,7 @@ import {
   GetOneResponses,
   PatchResponses,
   PostResponses,
-} from 'src/swagger/swagger-cars';
+} from '../swagger/swagger-cars';
 import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';
@@ -39,6 +39,7 @@ export class CarsController {
 
   @GetAllResponses()
   @Get()
+  @ApiQuery({ name: 'page', required: false, type: String })
   @ApiQuery({ name: 'brand', required: false, type: String })
   @ApiQuery({ name: 'km', required: false, type: Number })
   @ApiQuery({ name: 'year', required: false, type: String })

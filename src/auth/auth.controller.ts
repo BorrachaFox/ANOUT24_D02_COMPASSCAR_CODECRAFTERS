@@ -12,7 +12,7 @@ import { AuthRegisterDTO } from './dto/auth-register.dto';
 import {
   PostLoginResponses,
   PostRegisterResponses,
-} from 'src/swagger/swagger-auth';
+} from '../swagger/swagger-auth';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

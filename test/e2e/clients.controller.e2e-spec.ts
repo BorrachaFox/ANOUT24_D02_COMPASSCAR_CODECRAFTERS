@@ -15,8 +15,8 @@ describe('ClientsController (e2e)', () => {
   let jwtToken: string;
 
   const testUser = {
-    name: 'test user',
-    email: 'user@test.com',
+    name: 'test sauser',
+    email: 'usasdaer@test.com',
     password: 'password123',
   };
 
@@ -27,8 +27,6 @@ describe('ClientsController (e2e)', () => {
     birthday: '1990-05-19',
     phone: '558836550897',
   };
-
-  const cleanCpf = testData.cpf.replace(/\D/g, '');
 
   let createdClientId: number;
 
@@ -46,17 +44,16 @@ describe('ClientsController (e2e)', () => {
     const authResponse = await authController.register(testUser);
     jwtToken = authResponse.accessToken;
 
-    await prisma.order.deleteMany();
-    await prisma.car.deleteMany();
-    await prisma.client.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.client.deleteMany({ where: { cpf: testData.cpf } });
 
     await app.init();
   });
 
   afterAll(async () => {
-    await prisma.client.deleteMany();
     await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.client.deleteMany({ where: { cpf: testData.cpf } });
+
     await app.close();
   });
 
@@ -70,7 +67,7 @@ describe('ClientsController (e2e)', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.name).toEqual(testData.name);
-    expect(response.body.cpf).toEqual(cleanCpf);
+    expect(response.body.cpf).toEqual(testData.cpf);
     expect(response.body.email).toEqual(testData.email);
     expect(response.body.phone).toEqual(testData.phone);
     expect(response.body).toHaveProperty('status', 'ACTIVE');
@@ -85,7 +82,7 @@ describe('ClientsController (e2e)', () => {
     expect(createdClient).toEqual(
       expect.objectContaining({
         name: testData.name,
-        cpf: cleanCpf,
+        cpf: testData.cpf,
         email: testData.email,
         phone: testData.phone,
       }),
@@ -116,7 +113,7 @@ describe('ClientsController (e2e)', () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('id', createdClientId);
     expect(response.body).toHaveProperty('name', testData.name);
-    expect(response.body).toHaveProperty('cpf', cleanCpf);
+    expect(response.body).toHaveProperty('cpf', testData.cpf);
     expect(response.body).toHaveProperty('email', testData.email);
   });
 

@@ -8,7 +8,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { validatorCpf } from 'src/Decorators/validationCpf/validate-cpf-decorators';
+import { validatorCpf } from '../../Decorators/validationCpf/validate-cpf-decorators';
 
 export class CreateClientDto {
   @ApiProperty({ description: "Add the customer's full name." })

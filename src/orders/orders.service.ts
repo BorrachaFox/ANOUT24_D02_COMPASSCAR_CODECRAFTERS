@@ -68,8 +68,49 @@ export class OrdersService {
     }
   }
 
-  async findAll() {
-    return this.prisma.order.findMany();
+  async findAll(query) {
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    let limit = parseInt(query.limit, 10) || 5;
+
+    if (limit <= 0) {
+      limit = 5;
+    } else if (limit > 10) {
+      limit = 10;
+    }
+    const take: number = Number(limit);
+    const skip: number = Number((page - 1) * limit);
+
+    const where: Record<string, any> = {};
+    const { cpf, status } = query;
+
+    if (cpf) {
+      const thisClient = await this.prisma.client.findFirst({
+        where: {
+          cpf,
+        },
+      });
+
+      where.client_id = thisClient.id;
+    }
+
+    if (status) where.status = status;
+
+    const [db_response, total_count] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take,
+      }),
+      this.prisma.order.count({
+        where,
+      }),
+    ]);
+
+    return {
+      page,
+      count: total_count,
+      data: db_response,
+    };
   }
 
   async findOne(id: number) {
