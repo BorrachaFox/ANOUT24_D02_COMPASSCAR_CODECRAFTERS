@@ -16,7 +16,7 @@ import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrdersService } from './orders.service';
-import { Status } from '@prisma/client';
+import { OrderStatus } from '@prisma/client';
 
 @ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)
@@ -31,6 +31,8 @@ export class OrdersController {
 
   @Get()
   @ApiQuery({ name: 'page', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: OrderStatus })
+  @ApiQuery({ name: 'cpf', required: false, type: String })
   async findAll(@Query() query: any) {
     return this.ordersService.findAll(query);
   }

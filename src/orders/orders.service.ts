@@ -80,12 +80,30 @@ export class OrdersService {
     const take: number = Number(limit);
     const skip: number = Number((page - 1) * limit);
 
+    const where: Record<string, any> = {};
+    const { cpf, status } = query;
+
+    if (cpf) {
+      const thisClient = await this.prisma.client.findFirst({
+        where: {
+          cpf,
+        },
+      });
+
+      where.client_id = thisClient.id;
+    }
+
+    if (status) where.status = status;
+
     const [db_response, total_count] = await Promise.all([
-      this.prisma.client.findMany({
+      this.prisma.order.findMany({
+        where,
         skip,
         take,
       }),
-      this.prisma.client.count(),
+      this.prisma.order.count({
+        where,
+      }),
     ]);
 
     return {
