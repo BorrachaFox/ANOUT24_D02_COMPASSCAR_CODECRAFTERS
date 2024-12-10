@@ -25,6 +25,12 @@ describe('AuthController (e2e)', () => {
     authController = module.get<AuthController>(AuthController);
 
     prisma = module.get<PrismaService>(PrismaService);
+
+    await prisma.order.deleteMany();
+    await prisma.car.deleteMany();
+    await prisma.client.deleteMany();
+    await prisma.user.deleteMany();
+
     await app.init();
   });
 

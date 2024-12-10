@@ -46,6 +46,11 @@ describe('ClientsController (e2e)', () => {
     const authResponse = await authController.register(testUser);
     jwtToken = authResponse.accessToken;
 
+    await prisma.order.deleteMany();
+    await prisma.car.deleteMany();
+    await prisma.client.deleteMany();
+    await prisma.user.deleteMany();
+
     await app.init();
   });
 

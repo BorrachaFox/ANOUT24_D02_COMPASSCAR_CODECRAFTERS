@@ -45,8 +45,8 @@ describe('OrdersController (e2e)', () => {
   const testOrder = {
     client_id: 1,
     car_id: 1,
-    start_date: '2024-12-09T20:29:00.258Z',
-    final_date: '2024-12-20T20:29:00.258Z',
+    start_date: '2024-12-09',
+    final_date: '2024-12-20',
     cep: '01001000',
   };
 
@@ -71,6 +71,11 @@ describe('OrdersController (e2e)', () => {
     testOrder.client_id = (await clientsController.create(testClient)).id;
     testOrder.car_id = (await carsController.create(testCar)).id;
 
+    await prisma.order.deleteMany();
+    await prisma.car.deleteMany();
+    await prisma.client.deleteMany();
+    await prisma.user.deleteMany();
+
     await app.init();
   });
 
@@ -78,7 +83,7 @@ describe('OrdersController (e2e)', () => {
     await prisma.order.deleteMany();
     await prisma.car.deleteMany();
     await prisma.client.deleteMany();
-    await prisma.user.deleteMany({ where: { email: testUser.email } });
+    await prisma.user.deleteMany();
     await app.close();
   });
 
@@ -164,6 +169,43 @@ describe('OrdersController (e2e)', () => {
     expect(response.body).toHaveProperty('created_at');
   });
 
+  it('/orders/:id (PATCH) - Should edit an order by ID', async () => {
+    const updateData = {
+      start_date: '2024-12-09',
+      final_date: '2025-12-12',
+      cep: '11801-000',
+    };
+
+    const response = await request(app.getHttpServer())
+      .patch(`/orders/${createdOrderId}`)
+      .send(updateData)
+      .set('Authorization', `Bearer ${jwtToken}`);
+
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        id: createdOrderId,
+        cep: updateData.cep,
+        start_date: updateData.start_date,
+        final_date: updateData.final_date,
+      }),
+    );
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: createdOrderId },
+    });
+
+    expect(updatedOrder).not.toBeNull();
+    expect(updatedOrder).toEqual(
+      expect.objectContaining({
+        start_date: updateData.start_date,
+        final_date: updateData.final_date,
+        cep: updateData.cep,
+      }),
+    );
+  });
+
   it('/orders/:id (DELETE) - Should delete a order by ID', async () => {
     const response = await request(app.getHttpServer())
       .delete(`/orders/${createdOrderId}`)
@@ -171,10 +213,10 @@ describe('OrdersController (e2e)', () => {
 
     expect(response.status).toBe(204);
 
-    const deletedUser = await prisma.user.findUnique({
+    const deletedOrder = await prisma.user.findUnique({
       where: { id: createdOrderId },
     });
 
-    expect(deletedUser.status).toBe('INACTIVE');
+    expect(deletedOrder.status).toBe('INACTIVE');
   });
 });
