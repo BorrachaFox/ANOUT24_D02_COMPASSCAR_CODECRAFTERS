@@ -82,7 +82,7 @@ ___
 ```bash
 npm run pretest:int
 ```
-### **1. Rodar script pretest**
+### **2. Rodar teste**
 ```bash
 npm run test:e2e
 ```
