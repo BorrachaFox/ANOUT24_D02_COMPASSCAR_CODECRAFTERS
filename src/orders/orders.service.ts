@@ -51,8 +51,11 @@ export class OrdersService {
       rental_fee: rental_fee,
       total_rental_price: car.daily_rate * diffInDays + rental_fee,
     };
-
-    return this.prisma.order.create({ data: orderCreating });
+    try {
+      return this.prisma.order.create({ data: orderCreating });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async findAll() {
@@ -156,23 +159,27 @@ export class OrdersService {
       );
       lateFee = 2 * validateCar.daily_rate * overdueDays;
     }
-    return this.prisma.order.update({
-      where: { id },
-      data: {
-        ...updateOrderDto,
-        status: status,
-        uf: uf || validateOrder.uf,
-        city: city || validateOrder.city,
-        rental_fee: parseFloat(rentalFee || validateOrder.rental_fee),
-        total_rental_price: totalRentalPrice,
-        update_at: new Date(),
-        late_fee: lateFee,
-        order_closing_time:
-          updateOrderDto.status === 'CLOSED'
-            ? new Date()
-            : validateOrder.order_closing_time,
-      },
-    });
+    try {
+      return this.prisma.order.update({
+        where: { id },
+        data: {
+          ...updateOrderDto,
+          status: status,
+          uf: uf || validateOrder.uf,
+          city: city || validateOrder.city,
+          rental_fee: parseFloat(rentalFee || validateOrder.rental_fee),
+          total_rental_price: totalRentalPrice,
+          update_at: new Date(),
+          late_fee: lateFee,
+          order_closing_time:
+            updateOrderDto.status === 'CLOSED'
+              ? new Date()
+              : validateOrder.order_closing_time,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async remove(id: number) {
