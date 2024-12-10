@@ -194,7 +194,7 @@ export class OrdersService {
       where: { id },
     });
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+      throw new NotFoundException(`Order not found`);
     }
     return order;
   }
