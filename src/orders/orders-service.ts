@@ -155,7 +155,7 @@ export class OrdersService {
       console.log(overdueDays);
       lateFee = 2 * validateCar.daily_rate * overdueDays;
     }
-    return this.prisma.order.update({
+    await this.prisma.order.update({
       where: { id },
       data: {
         ...updateOrderDto,
@@ -179,7 +179,7 @@ export class OrdersService {
     if (order.status != OrderStatus.OPEN) {
       throw new ConflictException('Order cannot be canceled');
     }
-    return this.prisma.order.update({
+    this.prisma.order.update({
       where: { id },
       data: { status: OrderStatus.CANCELED, update_at: new Date() },
     });

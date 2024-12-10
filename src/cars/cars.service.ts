@@ -80,7 +80,7 @@ export class CarsService {
     if (year) data.year = year;
     if (daily_rate) data.daily_rate = daily_rate;
     data.update_at = new Date();
-    return this.prisma.car.update({
+    await this.prisma.car.update({
       where: { id },
       data,
     });
@@ -88,7 +88,7 @@ export class CarsService {
 
   async remove(id: number) {
     const presentData = await this.existsCar(id);
-    return this.prisma.car.update({
+    await this.prisma.car.update({
       where: { id },
       data: {
         status: Status.INACTIVE,

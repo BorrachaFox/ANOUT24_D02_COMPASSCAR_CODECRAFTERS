@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -48,12 +49,14 @@ export class ClientsController {
 
   @PatchResponses()
   @Patch(':id')
+  @HttpCode(204)
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
     return this.clientsService.update(+id, updateClientDto);
   }
 
   @DeleteResponses()
   @Delete(':id')
+  @HttpCode(204)
   remove(@Param('id') id: string) {
     return this.clientsService.remove(+id);
   }

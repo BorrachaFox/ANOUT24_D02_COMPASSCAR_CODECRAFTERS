@@ -127,7 +127,7 @@ export class ClientsService {
       : { ...updateClientDto };
 
     try {
-      return this.prisma.client.update({
+      this.prisma.client.update({
         where: { id },
         data,
       });

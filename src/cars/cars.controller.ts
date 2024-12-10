@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -49,6 +50,7 @@ export class CarsController {
 
   @PatchResponses()
   @Patch(':id')
+  @HttpCode(204)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDTO,
@@ -58,7 +60,7 @@ export class CarsController {
 
   @DeleteResponses()
   @Delete(':id')
-  //@UseGuards(CarNotFoundGuard)
+  @HttpCode(204)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.carsService.remove(id);
   }
