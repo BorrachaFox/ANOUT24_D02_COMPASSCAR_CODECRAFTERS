@@ -64,14 +64,24 @@ export class ClientsService {
     if (status) where.status = status;
 
     try {
-      const client = await this.prisma.client.findMany({
-        where,
-        skip,
-        take,
-      });
-      ValidateClient.clientFiltersFounded(client);
+      const [db_response, total_count] = await Promise.all([
+        this.prisma.client.findMany({
+          where,
+          skip,
+          take,
+        }),
+        this.prisma.client.count({
+          where,
+        }),
+      ]);
 
-      return client;
+      ValidateClient.clientFiltersFounded(db_response);
+
+      return {
+        page,
+        count: total_count,
+        data: db_response,
+      };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

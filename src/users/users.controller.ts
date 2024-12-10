@@ -39,6 +39,7 @@ export class UsersController {
 
   @GetAllResponses()
   @Get()
+  @ApiQuery({ name: 'page', required: false, type: String })
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'email', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: Status })

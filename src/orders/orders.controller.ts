@@ -8,13 +8,15 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrdersService } from './orders.service';
+import { Status } from '@prisma/client';
 
 @ApiBearerAuth('access-token')
 @UseGuards(IsAuthGuard)
@@ -26,10 +28,13 @@ export class OrdersController {
   create(@Body() createOrdersDto: CreateOrdersDto) {
     return this.ordersService.create(createOrdersDto);
   }
+
   @Get()
-  async findAll() {
-    return this.ordersService.findAll();
+  @ApiQuery({ name: 'page', required: false, type: String })
+  async findAll(@Query() query: any) {
+    return this.ordersService.findAll(query);
   }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.ordersService.findOne(+id);

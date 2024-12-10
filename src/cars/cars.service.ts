@@ -29,7 +29,7 @@ export class CarsService {
     return this.prisma.car.create({ data: createCarDto });
   }
 
-  findAll(query) {
+  async findAll(query) {
     const where: Record<string, any> = {};
 
     const page = Math.max(parseInt(query.page, 10) || 1, 1);
@@ -52,11 +52,22 @@ export class CarsService {
     if (status) where.status = { equals: status };
     if (daily_rate) where.daily_rate = { lte: Number(daily_rate) };
 
-    return this.prisma.car.findMany({
-      where,
-      skip,
-      take,
-    });
+    const [db_response, total_count] = await Promise.all([
+      this.prisma.car.findMany({
+        where,
+        skip,
+        take,
+      }),
+      this.prisma.car.count({
+        where,
+      }),
+    ]);
+
+    return {
+      page,
+      count: total_count,
+      data: db_response,
+    };
   }
 
   findOne(id: number) {

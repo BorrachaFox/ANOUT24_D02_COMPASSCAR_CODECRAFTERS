@@ -38,6 +38,7 @@ export class ClientsController {
 
   @GetAllResponses()
   @Get()
+  @ApiQuery({ name: 'page', required: false, type: String })
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'email', required: false, type: String })
   @ApiQuery({ name: 'cpf', required: false, type: String })

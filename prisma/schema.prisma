@@ -76,6 +76,6 @@ model Order {
   created_at         DateTime    @default(now())
   update_at          DateTime    @default(now()) @updatedAt
 
-  client Client @relation(fields: [client_id], references: [id])
-  car    Car    @relation(fields: [car_id], references: [id])
+  client Client @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  car    Car    @relation(fields: [car_id], references: [id], onDelete: Cascade)
 }

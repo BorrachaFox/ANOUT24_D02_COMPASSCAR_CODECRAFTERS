@@ -54,13 +54,23 @@ export class UsersService {
     if (status) where.status = status;
 
     try {
-      const usersWithFilters = await this.prisma.user.findMany({
-        where,
-        skip,
-        take,
-      });
-      ValidateUsers.userFiltersFounded(usersWithFilters);
-      return usersWithFilters.map(({ password, ...user }) => user);
+      const [db_response, total_count] = await Promise.all([
+        this.prisma.user.findMany({
+          where,
+          skip,
+          take,
+        }),
+        this.prisma.user.count({
+          where,
+        }),
+      ]);
+
+      ValidateUsers.userFiltersFounded(db_response);
+      return {
+        page,
+        count: total_count,
+        data: db_response.map(({ password, ...user }) => user),
+      };
     } catch (error) {
       throw error;
     }
