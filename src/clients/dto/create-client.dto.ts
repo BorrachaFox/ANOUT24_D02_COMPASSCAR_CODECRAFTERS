@@ -1,5 +1,6 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+
 import {
   IsDate,
   IsEmail,
@@ -7,6 +8,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
+import { validatorCpf } from 'src/Decorators/validationCpf/validate-cpf-decorators';
 
 export class CreateClientDto {
   @ApiProperty({ description: "Add the customer's full name." })
@@ -18,6 +20,7 @@ export class CreateClientDto {
     description: 'Add customer CPF.',
     example: '111.444.777-35',
   })
+  @validatorCpf()
   @IsString()
   cpf: string;
 

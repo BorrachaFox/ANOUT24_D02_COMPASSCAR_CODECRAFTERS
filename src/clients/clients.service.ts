@@ -33,17 +33,13 @@ export class ClientsService {
       ValidateClient.emailUsing(clientFound.email, createClientDto.email);
       ValidateClient.cpfUsing(clientFound.cpf, cpf);
     }
-    try {
-      return this.prisma.client.create({
-        data: {
-          ...createClientDto,
-          birthday,
-          cpf,
-        },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+
+    return this.prisma.client.create({
+      data: {
+        ...createClientDto,
+        birthday,
+      },
+    });
   }
 
   async findAll(query) {
@@ -57,7 +53,6 @@ export class ClientsService {
     } else if (limit > 10) {
       limit = 10;
     }
-
     const take: number = Number(limit);
     const skip: number = Number((page - 1) * limit);
 
@@ -167,5 +162,27 @@ export class ClientsService {
     if (!client) {
       throw new NotFoundException('Client does not exist.');
     }
+  }
+
+  CpfValidations(cpf: string): boolean {
+    const cpfNumbersOnly = cpf.replace(/\D/g, '');
+
+    if (cpfNumbersOnly.length !== 11 || /^(\d)\1+$/.test(cpfNumbersOnly)) {
+      return false;
+    }
+
+    const calculateDigit = (base: string, initialWeight: number): number => {
+      const sum = base.split('').reduce((acc, num, idx) => {
+        return acc + parseInt(num) * (initialWeight - idx);
+      }, 0);
+      const rest = sum % 11;
+      return rest < 2 ? 0 : 11 - rest;
+    };
+
+    const base = cpfNumbersOnly.substring(0, 9);
+    const digito1 = calculateDigit(base, 10);
+    const digito2 = calculateDigit(base + digito1, 11);
+
+    return cpfNumbersOnly === base + digito1.toString() + digito2.toString();
   }
 }

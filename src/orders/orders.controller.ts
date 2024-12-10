@@ -8,9 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
-import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CreateOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrdersService } from './orders.service';
