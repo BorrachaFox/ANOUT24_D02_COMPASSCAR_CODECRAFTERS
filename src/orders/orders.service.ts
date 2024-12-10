@@ -33,15 +33,16 @@ export class OrdersService {
     const car = await this.validateCarOrder(createOrdersDto.car_id);
     const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
 
-    await this.validateClientAndCarOrder(createOrdersDto.client_id, createOrdersDto.car_id)
+    await this.validateClientAndCarOrder(
+      createOrdersDto.client_id,
+      createOrdersDto.car_id,
+    );
     const diffInMs =
       new Date(createOrdersDto.final_date).valueOf() -
       new Date(createOrdersDto.start_date).valueOf();
     const diffInDays = diffInMs / (1000 * 60 * 60);
 
     const rental_fee = Number(dataCEP.gia) / 100;
-
-
 
     const orderCreating: SaveOrderDto = {
       ...createOrdersDto,
@@ -210,21 +211,29 @@ export class OrdersService {
     return validateCar;
   }
 
-  async validateClientOrder(id: number){
+  async validateClientOrder(id: number) {
     const validateClient = await this.clientService.existsClient(id);
-    if(validateClient.status != Status.ACTIVE){
+    if (validateClient.status != Status.ACTIVE) {
       throw new ConflictException('Client is not active');
     }
   }
 
-  async validateClientAndCarOrder(client_id, car_id){
-    let order = await this.prisma.order.findFirst({
+  async validateClientAndCarOrder(client_id, car_id) {
+    const order = await this.prisma.order.findFirst({
       where: {
-        OR: [{ client_id, status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] }},
-          { car_id, status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] } }],
+        OR: [
+          {
+            client_id,
+            status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] },
+          },
+          {
+            car_id,
+            status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] },
+          },
+        ],
       },
     });
-    if(order){
+    if (order) {
       throw new BadRequestException(`Client or Car using in another order`);
     }
     return order;
