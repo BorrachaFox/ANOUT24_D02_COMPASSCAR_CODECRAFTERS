@@ -161,6 +161,7 @@ export class ClientsService {
     if (!client) {
       throw new NotFoundException('Client does not exist');
     }
+    return client;
   }
 
   CpfValidations(cpf: string): boolean {

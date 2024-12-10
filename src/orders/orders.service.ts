@@ -22,23 +22,26 @@ export class OrdersService {
   ) {}
 
   async create(createOrdersDto: CreateOrdersDto) {
-    await this.clientService.existsClient(createOrdersDto.client_id);
     const cepFormatado = createOrdersDto.cep.replace(/\D/g, '');
     if (cepFormatado.length !== 8) {
       throw new BadRequestException(
         'Invalid CEP. The CEP must have 8 numbers.',
       );
     }
+    await this.validateClientOrder(createOrdersDto.client_id);
 
-    const car = await this.carService.existsCar(createOrdersDto.car_id);
+    const car = await this.validateCarOrder(createOrdersDto.car_id);
     const dataCEP = await this.fetchViaAPI(createOrdersDto.cep);
 
+    await this.validateClientAndCarOrder(createOrdersDto.client_id, createOrdersDto.car_id)
     const diffInMs =
       new Date(createOrdersDto.final_date).valueOf() -
       new Date(createOrdersDto.start_date).valueOf();
     const diffInDays = diffInMs / (1000 * 60 * 60);
 
     const rental_fee = Number(dataCEP.gia) / 100;
+
+
 
     const orderCreating: SaveOrderDto = {
       ...createOrdersDto,
@@ -173,12 +176,12 @@ export class OrdersService {
 
   async remove(id: number) {
     const order = await this.existsOrder(id);
-    if (order.status != OrderStatus.OPEN) {
+    if (order.status !== OrderStatus.OPEN) {
       throw new ConflictException('Order cannot be canceled');
     }
-    this.prisma.order.update({
+    await this.prisma.order.update({
       where: { id },
-      data: { status: OrderStatus.CANCELED, update_at: new Date() },
+      data: { status: OrderStatus.CANCELED },
     });
   }
 
@@ -194,7 +197,7 @@ export class OrdersService {
       where: { id },
     });
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+      throw new NotFoundException(`Order not found`);
     }
     return order;
   }
@@ -205,5 +208,25 @@ export class OrdersService {
       throw new ConflictException('Car is not active');
     }
     return validateCar;
+  }
+
+  async validateClientOrder(id: number){
+    const validateClient = await this.clientService.existsClient(id);
+    if(validateClient.status != Status.ACTIVE){
+      throw new ConflictException('Client is not active');
+    }
+  }
+
+  async validateClientAndCarOrder(client_id, car_id){
+    let order = await this.prisma.order.findFirst({
+      where: {
+        OR: [{ client_id, status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] }},
+          { car_id, status: { notIn: [OrderStatus.CLOSED, OrderStatus.CANCELED] } }],
+      },
+    });
+    if(order){
+      throw new BadRequestException(`Client or Car using in another order`);
+    }
+    return order;
   }
 }
