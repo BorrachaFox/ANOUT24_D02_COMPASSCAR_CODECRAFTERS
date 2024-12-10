@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -10,11 +11,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { IsAuthGuard } from 'src/guards/auth/isAuth.guards';
+import { IsAuthGuard } from '../guards/auth/isAuth.guards';
 import { CarsService } from './cars.service';
 import { CreateCarDTO } from './dto/create-car.dto';
 import { UpdateCarDTO } from './dto/update-car.dto';
-import { CarPlateFormatGuard } from '../guards/cars/car-plate-format.guard';
 
 @UseGuards(IsAuthGuard)
 @Controller('cars')
@@ -22,7 +22,6 @@ export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   @Post()
-  @UseGuards(CarPlateFormatGuard)
   create(@Body() createCarDto: CreateCarDTO) {
     return this.carsService.create(createCarDto);
   }
@@ -38,7 +37,7 @@ export class CarsController {
   }
 
   @Patch(':id')
-  @UseGuards(CarPlateFormatGuard)
+  @HttpCode(204)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCarDto: UpdateCarDTO,
@@ -47,7 +46,7 @@ export class CarsController {
   }
 
   @Delete(':id')
-  //@UseGuards(CarNotFoundGuard)
+  @HttpCode(204)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.carsService.remove(id);
   }

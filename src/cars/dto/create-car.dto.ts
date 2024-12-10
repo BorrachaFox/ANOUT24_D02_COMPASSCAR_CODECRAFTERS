@@ -12,6 +12,7 @@ import {
   Min,
 } from 'class-validator';
 import { IsArrayUnique } from '../../Decorators/cars/car-items-unique.decorator';
+import { IsCarPlate } from '../../Decorators/cars/car-plate-format.decorator';
 
 export class CreateCarDTO {
   @IsString()
@@ -24,6 +25,7 @@ export class CreateCarDTO {
 
   @IsString()
   @IsNotEmpty()
+  @IsCarPlate()
   plate: string;
 
   @IsInt()
