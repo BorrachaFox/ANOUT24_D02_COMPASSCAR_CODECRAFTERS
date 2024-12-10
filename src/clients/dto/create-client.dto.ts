@@ -1,10 +1,12 @@
 import { Type } from 'class-transformer';
 import { IsDate, IsEmail, IsPhoneNumber, IsString } from 'class-validator';
+import { validatorCpf } from 'src/Decorators/validationCpf/validate-cpf-decorators';
 
 export class CreateClientDto {
   @IsString()
   name: string;
 
+  @validatorCpf()
   @IsString()
   cpf: string;
 
