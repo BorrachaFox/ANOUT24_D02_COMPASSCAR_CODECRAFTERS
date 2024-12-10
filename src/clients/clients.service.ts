@@ -1,97 +1,97 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { ValidateClient } from './utils/validate-client.utils';
+import { CPFDocumentUtils } from './utils/cpf-formater-client.utils';
+import { OrderStatus, Status } from '@prisma/client';
+import { query } from 'express';
 
 @Injectable()
 export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createClientDto: CreateClientDto) {
+    const cpf = CPFDocumentUtils.formatCPF(createClientDto.cpf);
     const today = new Date();
     const birthday = new Date(createClientDto.birthday);
     const clientAge = today.getFullYear() - birthday.getFullYear();
 
-    if (clientAge <= 18) {
-      throw new BadRequestException('Client must be 18 years or older');
-    }
+    ValidateClient.validateAge(clientAge);
 
-    const conflictingClient = await this.prisma.client.findFirst({
+    const clientFound = await this.prisma.client.findFirst({
       where: {
         OR: [{ email: createClientDto.email }, { cpf: createClientDto.cpf }],
       },
     });
 
-    if (conflictingClient) {
-      if (conflictingClient.email === createClientDto.email) {
-        throw new ConflictException(
-          'Email already in use by an active client.',
-        );
-      }
-      if (conflictingClient.cpf === createClientDto.cpf) {
-        throw new ConflictException('Cpf already in use by an active client.');
-      }
+    if (clientFound) {
+      ValidateClient.emailUsing(clientFound.email, createClientDto.email);
+      ValidateClient.cpfUsing(clientFound.cpf, cpf);
     }
-
-    return this.prisma.client.create({
-      data: {
-        ...createClientDto,
-        birthday,
-      },
-    });
+    try {
+      return this.prisma.client.create({
+        data: {
+          ...createClientDto,
+          birthday,
+          cpf,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
-  async findAll(email: string, name: string, status: string, cpf: string) {
-    const where: any = {};
-    if (email) {
-      where.email = {
-        contains: email,
-        mode: 'insensitive',
-      };
+  async findAll(query) {
+    const clientNoFilter = await this.prisma.client.findMany({ take: 1 });
+    ValidateClient.clientFoundedAll(clientNoFilter);
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    let limit = parseInt(query.limit, 10) || 5;
+
+    if (limit <= 0) {
+      limit = 5;
+    } else if (limit > 10) {
+      limit = 10;
     }
 
-    if (name) {
-      where.name = {
-        contains: name,
-        mode: 'insensitive',
-      };
-    }
-    if (cpf) {
-      where.cpf = {
-        contains: cpf,
-      };
-    }
+    const take: number = Number(limit);
+    const skip: number = Number((page - 1) * limit);
 
-    if (status) {
-      where.status = status;
-    }
+    const where: Record<string, any> = {};
+    const { email, name, cpf, status } = query;
+    if (email) where.email = { contains: email, mode: 'insensitive' };
+    if (name) where.name = { contains: name, mode: 'insensitive' };
+    if (cpf) where.cpf = { contains: cpf };
+    if (status) where.status = status;
 
     try {
       const client = await this.prisma.client.findMany({
         where,
+        skip,
+        take,
       });
-
-      if (client.length === 0) {
-        throw new NotFoundException('No client found');
-      }
+      ValidateClient.clientFiltersFounded(client);
 
       return client;
-    } catch {
-      throw new NotFoundException('client not found with this filter');
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
   }
 
   async findOne(id: number) {
     await this.existsClient(id);
-    return this.prisma.client.findFirst({
-      where: { id },
-    });
+    try {
+      return this.prisma.client.findFirst({
+        where: { id },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async update(id: number, updateClientDto: UpdateClientDto) {
@@ -101,27 +101,24 @@ export class ClientsService {
     if (updateClientDto.birthday) {
       const today = new Date();
       const clientAge = today.getFullYear() - birthday.getFullYear();
-
-      if (clientAge <= 18) {
-        throw new BadRequestException('Client must be 18 years or older');
-      }
+      ValidateClient.validateAge(clientAge);
     }
 
-    const conflictingClient = await this.prisma.client.findFirst({
+    const clientFound = await this.prisma.client.findFirst({
       where: {
         OR: [{ email: updateClientDto.email }, { cpf: updateClientDto.cpf }],
       },
     });
+    if (clientFound) {
+      ValidateClient.emailUsing(clientFound.email, updateClientDto.email);
+      ValidateClient.cpfUsing(
+        clientFound.cpf,
+        CPFDocumentUtils.formatCPF(updateClientDto.cpf),
+      );
+    }
 
-    if (conflictingClient) {
-      if (conflictingClient.email === updateClientDto.email) {
-        throw new ConflictException(
-          'Email already in use by an active client.',
-        );
-      }
-      if (conflictingClient.cpf === updateClientDto.cpf) {
-        throw new ConflictException('Cpf already in use by an active client.');
-      }
+    if (updateClientDto.cpf) {
+      updateClientDto.cpf = CPFDocumentUtils.formatCPF(updateClientDto.cpf);
     }
 
     const data = updateClientDto.birthday
@@ -129,12 +126,12 @@ export class ClientsService {
       : { ...updateClientDto };
 
     try {
-      return this.prisma.client.update({
+      this.prisma.client.update({
         where: { id },
         data,
       });
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(error);
     }
   }
 
@@ -144,7 +141,7 @@ export class ClientsService {
       where: {
         client_id: id,
         status: {
-          in: ['OPEN', 'APPROVED'],
+          in: [OrderStatus.OPEN, OrderStatus.APPROVED],
         },
       },
     });
@@ -156,10 +153,10 @@ export class ClientsService {
     try {
       await this.prisma.client.update({
         where: { id },
-        data: { status: 'INACTIVE' },
+        data: { status: Status.INACTIVE },
       });
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(error);
     }
   }
 
