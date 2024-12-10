@@ -68,17 +68,26 @@ export class OrdersService {
     let uf, city, rentalFee;
     if (updateOrderDto.cep) {
       const cepData = await this.fetchViaAPI(updateOrderDto.cep);
+      console.log(cepData);
+      if (cepData && cepData.erro === 'true')
+        throw new ConflictException('CEP not found at ViaCEP.');
       uf = cepData.uf;
-      city = cepData.city;
-      rentalFee = cepData.rentalFee;
+      city = cepData.localidade;
+      rentalFee = Number(cepData.gia) / 100;
     }
-    let validateCar = null;
+    const validateCar = await this.prisma.car.findFirst({
+      where: {
+        id: updateOrderDto.car_id
+          ? updateOrderDto.car_id
+          : validateOrder.car_id,
+      },
+    });
 
-    if (updateOrderDto.car_id) {
-      await this.validateCarOrder(updateOrderDto.car_id);
+    if (validateCar.id) {
+      await this.validateCarOrder(validateCar.id);
       const existingOrderWithCar = await this.prisma.order.findFirst({
         where: {
-          car_id: updateOrderDto.car_id,
+          car_id: validateCar.id,
           status: {
             not: OrderStatus.CLOSED,
           },
@@ -92,17 +101,6 @@ export class OrdersService {
           'The car is already associated with an open or approved order.',
         );
       }
-    } else {
-      const order = await this.prisma.order.findFirst({
-        where: {
-          id: id,
-        },
-      });
-      validateCar = await this.prisma.car.findFirst({
-        where: {
-          id: order.car_id,
-        },
-      });
     }
 
     const currentDate = new Date(
@@ -131,6 +129,9 @@ export class OrdersService {
 
     let status = validateOrder.status;
     if (updateOrderDto.status) {
+      if (updateOrderDto.status === 'CANCELED') {
+        throw new ConflictException('Status cannot be changed to CANCELED.');
+      }
       if (
         updateOrderDto.status === 'APPROVED' &&
         validateOrder.status === 'OPEN'
@@ -145,14 +146,10 @@ export class OrdersService {
     }
 
     let lateFee = validateOrder.late_fee;
-    console.log(finalDate);
-    console.log(currentDate);
     if (updateOrderDto.status === 'CLOSED' && currentDate > finalDate) {
-      console.log(`a`);
       const overdueDays = Math.ceil(
         (currentDate - finalDate) / (1000 * 3600 * 24),
       );
-      console.log(overdueDays);
       lateFee = 2 * validateCar.daily_rate * overdueDays;
     }
     await this.prisma.order.update({
