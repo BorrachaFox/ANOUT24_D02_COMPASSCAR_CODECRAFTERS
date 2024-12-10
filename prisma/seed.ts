@@ -21,7 +21,7 @@ async function seeds() {
     const userSeed: CreateUserDTO = {
       name: 'John Doe',
       email: 'john@doe.com',
-      password: 'abcd123456'
+      password: 'abcd123456',
     };
     await userService.create(userSeed);
     Logger.log('User seeded successfully.');
